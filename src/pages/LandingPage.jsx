@@ -89,12 +89,6 @@ export function LandingPage() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <Link
-              to="/login"
-              className="text-xs font-bold text-slate-700 hover:text-indigo-600 px-3 py-2 rounded-lg transition-colors"
-            >
-              Sign In
-            </Link>
             <Button
               variant="primary"
               size="sm"
@@ -138,16 +132,10 @@ export function LandingPage() {
                   icon={ArrowRight}
                   iconPosition="right"
                   onClick={() => setDemoModalOpen(true)}
-                  className="bg-[#4338ca] hover:bg-[#2a14b4] font-bold shadow-md shadow-indigo-200"
+                  className="bg-[#4338ca] hover:bg-[#2a14b4] font-bold shadow-md shadow-indigo-200 cursor-pointer"
                 >
-                  Schedule Campus Briefing
+                  Request Institutional Pilot
                 </Button>
-                <Link
-                  to="/login?tab=student"
-                  className="px-5 py-3 rounded-lg border border-slate-300 text-slate-700 font-bold text-sm hover:bg-slate-50 transition-all"
-                >
-                  Student Portal Login
-                </Link>
               </div>
 
               {/* Authority Metrics */}
@@ -613,12 +601,12 @@ export function LandingPage() {
               <div className="pt-6 mt-6 border-t border-slate-100 flex gap-3">
                 <Button
                   variant="primary"
-                  className="w-full bg-[#4338ca] hover:bg-[#2a14b4] text-xs font-bold py-2.5"
+                  className="w-full bg-[#4338ca] hover:bg-[#2a14b4] text-xs font-bold py-2.5 cursor-pointer shadow-sm"
                   icon={ArrowRight}
                   iconPosition="right"
-                  onClick={() => navigate("/login?tab=department")}
+                  onClick={() => setDemoModalOpen(true)}
                 >
-                  Placement Cell Sign In
+                  Request Institutional Pilot
                 </Button>
               </div>
             </div>
@@ -626,27 +614,32 @@ export function LandingPage() {
             {/* Candidate & Student Tier */}
             <div className="p-7 rounded-xl bg-white border border-slate-200/90 shadow-sm hover:border-emerald-300 transition-all flex flex-col justify-between">
               <div>
-                <div className="w-11 h-11 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center mb-5">
-                  <GraduationCap className="w-5 h-5" />
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-11 h-11 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center">
+                    <GraduationCap className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    All Academic Disciplines
+                  </span>
                 </div>
                 <h3 className="text-lg font-bold text-slate-900">
-                  Engineering Student Candidate
+                  Student Candidate Experience
                 </h3>
                 <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                  For final-year engineering students. Access your diagnostic feedback loop, verify coding handles, practice AI audio-visual mock interviews with STAR scoring, and track company matches.
+                  Designed for students across all programs (Engineering, Management, Law, Commerce, and Sciences). Access diagnostic feedback loops, verify skills, practice AI audio-visual mock interviews with STAR scoring, and track enterprise company matches.
                 </p>
                 <div className="mt-5 space-y-2.5 text-xs text-slate-700">
                   <div className="flex items-center gap-2.5 p-2 rounded-lg bg-slate-50 border border-slate-100">
                     <span className="font-mono text-[10px] font-bold text-emerald-700 bg-white px-1.5 py-0.5 rounded border border-emerald-200">01</span>
-                    <span className="font-medium">Dual Telemetry (LeetCode + AI Mock Rubric)</span>
+                    <span className="font-medium">Multi-Domain Skill & Diagnostic Telemetry (Technical, Analytical & Domain Rubrics)</span>
                   </div>
                   <div className="flex items-center gap-2.5 p-2 rounded-lg bg-slate-50 border border-slate-100">
                     <span className="font-mono text-[10px] font-bold text-emerald-700 bg-white px-1.5 py-0.5 rounded border border-emerald-200">02</span>
-                    <span className="font-medium">Enterprise Compatibility Percentile Breakdown</span>
+                    <span className="font-medium">Enterprise Compatibility & Readiness Index (Calibrated to Marquee Hiring Bars)</span>
                   </div>
                   <div className="flex items-center gap-2.5 p-2 rounded-lg bg-slate-50 border border-slate-100">
                     <span className="font-mono text-[10px] font-bold text-emerald-700 bg-white px-1.5 py-0.5 rounded border border-emerald-200">03</span>
-                    <span className="font-medium">Daily Behavioral STAR Task Streaks</span>
+                    <span className="font-medium">Daily Behavioral & STAR Situational Judgment Sprints</span>
                   </div>
                 </div>
               </div>
@@ -654,12 +647,12 @@ export function LandingPage() {
               <div className="pt-6 mt-6 border-t border-slate-100 flex gap-3">
                 <Button
                   variant="outline"
-                  className="w-full text-xs font-bold border-slate-300 text-slate-800 py-2.5"
+                  className="w-full text-xs font-bold border-slate-300 text-slate-800 py-2.5 cursor-pointer hover:bg-slate-50"
                   icon={ArrowRight}
                   iconPosition="right"
-                  onClick={() => navigate("/login?tab=student")}
+                  onClick={() => setDemoModalOpen(true)}
                 >
-                  Student Portal Login
+                  Request Institutional Pilot
                 </Button>
               </div>
             </div>
@@ -727,29 +720,29 @@ export function LandingPage() {
               </ul>
             </div>
 
-            {/* Column 3: Portals & Access */}
+            {/* Column 3: Institutional Solutions */}
             <div className="lg:col-span-3 space-y-3">
               <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider font-mono">
-                Direct Access Portals
+                Institutional Solutions
               </h4>
               <ul className="space-y-2 text-xs">
                 <li>
-                  <Link to="/login?tab=department" className="text-slate-600 hover:text-indigo-600 transition-colors flex items-center gap-1.5">
+                  <button
+                    onClick={() => setDemoModalOpen(true)}
+                    className="text-left text-slate-600 hover:text-indigo-600 transition-colors flex items-center gap-1.5 cursor-pointer"
+                  >
                     <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-                    Placement Cell & TPO Sign In
-                  </Link>
+                    Request Institutional Pilot
+                  </button>
                 </li>
                 <li>
-                  <Link to="/login?tab=student" className="text-slate-600 hover:text-indigo-600 transition-colors flex items-center gap-1.5">
+                  <button
+                    onClick={() => setDemoModalOpen(true)}
+                    className="text-left text-slate-600 hover:text-indigo-600 transition-colors flex items-center gap-1.5 cursor-pointer"
+                  >
                     <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-                    Engineering Candidate Portal
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/login?mode=onboard" className="text-slate-600 hover:text-indigo-600 transition-colors flex items-center gap-1.5">
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-                    Institutional Self-Onboarding
-                  </Link>
+                    Schedule Campus Briefing
+                  </button>
                 </li>
                 <li>
                   <button
@@ -757,7 +750,7 @@ export function LandingPage() {
                     className="text-left text-[#4338ca] hover:text-[#2a14b4] font-semibold transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
                     <ChevronRight className="w-3.5 h-3.5 text-[#4338ca]" />
-                    Book Campus Readiness Briefing
+                    Book Diagnostic Demo
                   </button>
                 </li>
               </ul>
@@ -846,26 +839,16 @@ export function LandingPage() {
               <div><strong>Cohort Size:</strong> {demoForm.studentsCount} candidates</div>
               <div><strong>Contact:</strong> {demoForm.phone || "Provided via email"}</div>
             </div>
-            <div className="flex gap-3 pt-2">
+            <div className="pt-2">
               <Button
-                variant="outline"
-                className="w-full text-xs font-bold"
+                variant="primary"
+                className="w-full text-xs font-bold bg-[#4338ca] hover:bg-[#2a14b4] py-2.5 cursor-pointer"
                 onClick={() => {
                   setDemoModalOpen(false);
                   setDemoSubmitted(false);
                 }}
               >
-                Close
-              </Button>
-              <Button
-                variant="primary"
-                className="w-full text-xs font-bold bg-[#4338ca] hover:bg-[#2a14b4]"
-                onClick={() => {
-                  setDemoModalOpen(false);
-                  navigate("/login?mode=onboard");
-                }}
-              >
-                Direct Onboard Portal
+                Close & Return to Home
               </Button>
             </div>
           </div>
