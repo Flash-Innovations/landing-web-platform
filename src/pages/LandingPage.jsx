@@ -51,10 +51,10 @@ export function LandingPage() {
   useEffect(() => {
     // Silent pre-warming ping to wake up backend instances
     try {
-      const apiUrl = (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_URL) || "";
+      const apiUrl = (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_URL) || "https://sips-flash-backend.onrender.com";
       const endpoint = apiUrl ? `${apiUrl.replace(/\/+$/, "")}/api/health` : "/api/health";
-      fetch(endpoint, { method: "GET" }).catch(() => {});
-    } catch (e) {}
+      fetch(endpoint, { method: "GET" }).catch(() => { });
+    } catch (e) { }
   }, []);
 
   const handleDemoSubmit = (e) => {
@@ -109,7 +109,7 @@ export function LandingPage() {
       <section className="relative overflow-hidden pt-12 pb-20 border-b border-slate-200/60 bg-gradient-to-b from-white to-[#f8f9ff]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            
+
             {/* Left Column: Vision & CTA */}
             <div className="lg:col-span-6 space-y-6 text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-[#4338ca] border border-indigo-200">
@@ -485,7 +485,7 @@ export function LandingPage() {
       <section id="loop" className="py-16 bg-white border-b border-slate-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            
+
             <div className="lg:col-span-5 space-y-4">
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
                 Predictive Architecture
@@ -520,7 +520,7 @@ export function LandingPage() {
             {/* Visual Circular Representation */}
             <div className="lg:col-span-7 flex justify-center">
               <div className="relative w-80 h-80 sm:w-96 sm:h-96 rounded-full border-2 border-dashed border-indigo-200 flex items-center justify-center p-8 bg-[#f8f9ff]">
-                
+
                 {/* Center Core */}
                 <div className="w-36 h-36 rounded-full bg-white border border-indigo-200 shadow-lg shadow-indigo-100 flex flex-col items-center justify-center text-center p-3">
                   <img
@@ -667,7 +667,7 @@ export function LandingPage() {
         {/* Main Footer Links */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10">
-            
+
             {/* Column 1: Brand & Sovereign Value Prop */}
             <div className="lg:col-span-4 space-y-4">
               <div className="flex items-center gap-3">
