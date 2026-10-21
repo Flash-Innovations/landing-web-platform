@@ -36,22 +36,22 @@ export function Footer() {
             </h4>
             <ul className="space-y-2">
               <li>
-                <a href={`${STUDENT_PORTAL_URL}/practice`} className="hover:text-indigo-600 transition-colors">
+                <a href="#features" className="hover:text-indigo-600 transition-colors">
                   Practice MCQs
                 </a>
               </li>
               <li>
-                <a href={`${STUDENT_PORTAL_URL}/coding`} className="hover:text-indigo-600 transition-colors">
+                <a href="#features" className="hover:text-indigo-600 transition-colors">
                   Coding Arena (Judge0)
                 </a>
               </li>
               <li>
-                <a href={`${STUDENT_PORTAL_URL}/interview`} className="hover:text-indigo-600 transition-colors">
+                <a href="#features" className="hover:text-indigo-600 transition-colors">
                   AI Mock Interviews
                 </a>
               </li>
               <li>
-                <a href={`${STUDENT_PORTAL_URL}/resume`} className="hover:text-indigo-600 transition-colors">
+                <a href="#features" className="hover:text-indigo-600 transition-colors">
                   ATS Resume Optimizer
                 </a>
               </li>
@@ -75,12 +75,12 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href={`${STUDENT_PORTAL_URL}/pricing`} className="hover:text-indigo-600 transition-colors">
+                <a href="#pricing" className="hover:text-indigo-600 transition-colors">
                   Plans & Pricing Tiers
                 </a>
               </li>
               <li>
-                <a href={`${STUDENT_PORTAL_URL}/outcomes`} className="hover:text-indigo-600 transition-colors">
+                <a href="#features" className="hover:text-indigo-600 transition-colors">
                   Verified Placement Outcomes
                 </a>
               </li>
@@ -126,7 +126,7 @@ export function Footer() {
               href={`${STUDENT_PORTAL_URL}/login`}
               className="text-indigo-600 font-semibold hover:underline inline-flex items-center gap-1"
             >
-              Open Student Portal ({STUDENT_PORTAL_URL}) &rarr;
+              Open Student Portal &rarr;
             </a>
           </div>
         </div>

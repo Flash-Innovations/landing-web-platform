@@ -13,8 +13,8 @@ export function PrivacyPolicyPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
             <img
-              src="/branding/sips-logo-compact.png"
-              alt="SIPS Logo"
+              src="/branding/flash-logo-compact.png"
+              alt="FLASH Logo"
               className="h-9 w-auto object-contain"
             />
           </div>

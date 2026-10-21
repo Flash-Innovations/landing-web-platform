@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   ArrowRight,
   ShieldCheck,
@@ -9,23 +9,29 @@ import {
   Crown,
   Sparkles,
   Mic,
-  Star,
-  Terminal,
-  FileText,
-  Award,
-  Zap,
-  TrendingUp,
-  Cpu
+  Award
 } from "lucide-react";
 import { Button } from "../components/common/Button";
 import { Card } from "../components/common/Card";
 import { Footer } from "../components/common/Footer";
 import { STUDENT_PORTAL_URL } from "../config/env";
 
-export function LandingPage() {
+export function LandingPage({ defaultScrollTo = null }) {
   const goToStudentPortal = (path = "") => {
     window.location.href = `${STUDENT_PORTAL_URL}${path}`;
   };
+
+  const scrollToPricing = () => {
+    document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    if (defaultScrollTo === "pricing" || window.location.hash === "#pricing") {
+      setTimeout(() => {
+        document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
+      }, 150);
+    }
+  }, [defaultScrollTo]);
 
   return (
     <div className="min-h-screen bg-[#f8f9ff] text-slate-900 font-sans selection:bg-indigo-100 selection:text-indigo-900 flex flex-col">
@@ -38,14 +44,14 @@ export function LandingPage() {
               src="/branding/flash-logo-horizontal.png"
               alt="FLASH"
               className="h-8 w-auto max-w-[170px] sm:max-w-[200px] object-contain cursor-pointer"
-              onClick={() => goToStudentPortal("/login")}
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             />
           </div>
 
           <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-slate-600">
             <a href="#features" className="hover:text-indigo-600 transition-colors">Platform Modules</a>
-            <a href="#interview" className="hover:text-indigo-600 transition-colors">Gemini Voice Mock</a>
-            <a href="#coding" className="hover:text-indigo-600 transition-colors">Sandboxed Coding</a>
+            <a href="#features" className="hover:text-indigo-600 transition-colors">Gemini Voice Mock</a>
+            <a href="#features" className="hover:text-indigo-600 transition-colors">Sandboxed Coding</a>
             <a href="#pricing" className="hover:text-indigo-600 transition-colors">Pricing & Plans</a>
           </nav>
 
@@ -99,7 +105,7 @@ export function LandingPage() {
               <Button
                 variant="outline"
                 size="lg"
-                onClick={() => goToStudentPortal("/pricing")}
+                onClick={scrollToPricing}
                 className="w-full sm:w-auto"
               >
                 View Student Plans (Free & Pro)
@@ -141,7 +147,7 @@ export function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
             {/* Card 1: MCQ Practice */}
-            <Card hover className="p-6 cursor-pointer" onClick={() => goToStudentPortal("/practice")}>
+            <Card hover className="p-6">
               <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center mb-4 shadow-xs">
                 <BrainCircuit className="w-6 h-6" />
               </div>
@@ -149,13 +155,13 @@ export function LandingPage() {
               <p className="text-xs text-slate-500 leading-relaxed mb-4">
                 Quantitative, Logical Reasoning, Verbal Ability, OS, DBMS, Computer Networks, and OOP concepts with KaTeX formula rendering.
               </p>
-              <div className="text-xs font-semibold text-indigo-600 flex items-center gap-1">
-                Explore Questions <ArrowRight className="w-3.5 h-3.5" />
+              <div className="text-xs font-semibold text-indigo-600">
+                1,000+ Curated Placement Problems
               </div>
             </Card>
 
             {/* Card 2: Coding Arena */}
-            <Card hover className="p-6 cursor-pointer" onClick={() => goToStudentPortal("/coding")}>
+            <Card hover className="p-6">
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center mb-4 shadow-xs">
                 <Code2 className="w-6 h-6" />
               </div>
@@ -163,13 +169,13 @@ export function LandingPage() {
               <p className="text-xs text-slate-500 leading-relaxed mb-4">
                 Write code in C++, Python, Java, or JavaScript with Monaco editor. Run test cases against Judge0 execution backend with sub-second feedback.
               </p>
-              <div className="text-xs font-semibold text-emerald-600 flex items-center gap-1">
-                Launch Arena <ArrowRight className="w-3.5 h-3.5" />
+              <div className="text-xs font-semibold text-emerald-600">
+                Sub-Second Judge0 Execution Sandbox
               </div>
             </Card>
 
             {/* Card 3: AI Mock Interview */}
-            <Card hover className="p-6 cursor-pointer" onClick={() => goToStudentPortal("/interview")}>
+            <Card hover className="p-6">
               <div className="w-12 h-12 rounded-2xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center mb-4 shadow-xs">
                 <Mic className="w-6 h-6" />
               </div>
@@ -177,13 +183,13 @@ export function LandingPage() {
               <p className="text-xs text-slate-500 leading-relaxed mb-4">
                 Real-time conversational voice interview simulator with Sarah (Principal AI). Practice technical, system design, and behavioral STAR interviews.
               </p>
-              <div className="text-xs font-semibold text-purple-600 flex items-center gap-1">
-                Start Interview <ArrowRight className="w-3.5 h-3.5" />
+              <div className="text-xs font-semibold text-purple-600">
+                Real-Time Voice AI Dialogue
               </div>
             </Card>
 
             {/* Card 4: ATS Resume */}
-            <Card hover className="p-6 cursor-pointer" onClick={() => goToStudentPortal("/resume")}>
+            <Card hover className="p-6">
               <div className="w-12 h-12 rounded-2xl bg-sky-50 border border-sky-100 text-sky-600 flex items-center justify-center mb-4 shadow-xs">
                 <FileCheck2 className="w-6 h-6" />
               </div>
@@ -191,13 +197,13 @@ export function LandingPage() {
               <p className="text-xs text-slate-500 leading-relaxed mb-4">
                 Audit your resume against FAANG applicant tracking systems. Detect missing tech keywords, quantify action verbs, and boost candidate ranking.
               </p>
-              <div className="text-xs font-semibold text-sky-600 flex items-center gap-1">
-                Scan Resume <ArrowRight className="w-3.5 h-3.5" />
+              <div className="text-xs font-semibold text-sky-600">
+                Tier-1 Keyword & Action Verb Audit
               </div>
             </Card>
 
             {/* Card 5: Verified Outcomes */}
-            <Card hover className="p-6 cursor-pointer" onClick={() => goToStudentPortal("/outcomes")}>
+            <Card hover className="p-6">
               <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center mb-4 shadow-xs">
                 <Award className="w-6 h-6" />
               </div>
@@ -205,13 +211,17 @@ export function LandingPage() {
               <p className="text-xs text-slate-500 leading-relaxed mb-4">
                 Document verified campus offers and PPOs. Share audited outcome telemetry with your college T&P cell while maintaining full privacy consent.
               </p>
-              <div className="text-xs font-semibold text-amber-600 flex items-center gap-1">
-                View Cohort Data <ArrowRight className="w-3.5 h-3.5" />
+              <div className="text-xs font-semibold text-amber-600">
+                Campus-Audited Offer Records
               </div>
             </Card>
 
             {/* Card 6: Fair Pricing */}
-            <Card hover className="p-6 cursor-pointer" onClick={() => goToStudentPortal("/pricing")}>
+            <Card
+              hover
+              className="p-6 cursor-pointer"
+              onClick={scrollToPricing}
+            >
               <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 flex items-center justify-center mb-4 shadow-xs">
                 <Crown className="w-6 h-6" />
               </div>
@@ -220,7 +230,7 @@ export function LandingPage() {
                 Free plan includes 100 MCQs and 50 DSA problems. Basic at ₹99/mo and Premium at ₹199/mo unlock unlimited practice and generous mock minutes.
               </p>
               <div className="text-xs font-semibold text-rose-600 flex items-center gap-1">
-                View Pricing Tiers <ArrowRight className="w-3.5 h-3.5" />
+                Explore Pricing Tiers <ArrowRight className="w-3.5 h-3.5" />
               </div>
             </Card>
 

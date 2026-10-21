@@ -41,7 +41,7 @@ export function AppRoutes() {
         <Route path="/login" element={<PortalRedirect to={`${STUDENT_PORTAL_URL}/login`} />} />
         <Route path="/register" element={<PortalRedirect to={`${STUDENT_PORTAL_URL}/register`} />} />
         <Route path="/onboarding" element={<PortalRedirect to={`${STUDENT_PORTAL_URL}/register`} />} />
-        <Route path="/pricing" element={<PortalRedirect to={`${STUDENT_PORTAL_URL}/pricing`} />} />
+        <Route path="/pricing" element={<LandingPage defaultScrollTo="pricing" />} />
 
         {/* Legal Pages */}
         <Route path="/privacy" element={<PrivacyPolicyPage />} />
