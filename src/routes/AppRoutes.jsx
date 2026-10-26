@@ -6,6 +6,8 @@ import { STUDENT_PORTAL_URL } from "../config/env";
 
 const PrivacyPolicyPage = lazy(() => import("../pages/legal/PrivacyPolicyPage").then(m => ({ default: m.PrivacyPolicyPage })));
 const TermsOfServicePage = lazy(() => import("../pages/legal/TermsOfServicePage").then(m => ({ default: m.TermsOfServicePage })));
+const RefundPolicyPage = lazy(() => import("../pages/legal/RefundPolicyPage").then(m => ({ default: m.RefundPolicyPage })));
+const ContactUsPage = lazy(() => import("../pages/legal/ContactUsPage").then(m => ({ default: m.ContactUsPage })));
 const DataSecurityPage = lazy(() => import("../pages/legal/DataSecurityPage").then(m => ({ default: m.DataSecurityPage })));
 
 function RouteLoadingFallback() {
@@ -43,9 +45,12 @@ export function AppRoutes() {
         <Route path="/onboarding" element={<PortalRedirect to={`${STUDENT_PORTAL_URL}/register`} />} />
         <Route path="/pricing" element={<LandingPage defaultScrollTo="pricing" />} />
 
-        {/* Legal Pages */}
+        {/* Legal & Compliance Pages (Razorpay Mandate) */}
         <Route path="/privacy" element={<PrivacyPolicyPage />} />
         <Route path="/terms" element={<TermsOfServicePage />} />
+        <Route path="/refund" element={<RefundPolicyPage />} />
+        <Route path="/cancellation-refund" element={<RefundPolicyPage />} />
+        <Route path="/contact" element={<ContactUsPage />} />
         <Route path="/security" element={<DataSecurityPage />} />
         
         <Route path="*" element={<NotFoundPage />} />
@@ -53,3 +58,5 @@ export function AppRoutes() {
     </Suspense>
   );
 }
+
+export default AppRoutes;

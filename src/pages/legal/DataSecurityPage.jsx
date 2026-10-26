@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, ShieldCheck, Lock, Server, KeyRound, FileCheck, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Lock, Server, KeyRound, FileCheck, CheckCircle2, CreditCard } from "lucide-react";
 import { Button } from "../../components/common/Button";
 
 export function DataSecurityPage() {
@@ -42,13 +42,13 @@ export function DataSecurityPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 mb-4">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-            Security & Data Sovereignty
+            Security & Data Protection
           </div>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-            Institutional Data Ownership & Architecture Security
+            Security Architecture & Compliance
           </h1>
           <p className="text-sm text-slate-600 mt-2">
-            Overview of technical controls, role-based access isolation, and zero-compromise encryption.
+            Overview of technical controls, Judge0 sandbox isolation, Razorpay PCI-DSS compliance, and end-to-end data encryption.
           </p>
         </div>
       </div>
@@ -60,51 +60,51 @@ export function DataSecurityPage() {
             <Lock className="w-5 h-5 text-[#4338ca]" />
             <h3 className="text-sm font-bold text-slate-900">End-to-End Encryption</h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              All communications utilize TLS 1.3 encryption. Passwords are salted and hashed with bcrypt, and all assessment telemetry is securely stored in isolated PostgreSQL instances.
+              All browser communications utilize TLS 1.3 encryption. Passwords are salted and hashed using bcrypt, and candidate telemetry is securely stored with AES-256 encryption at rest.
+            </p>
+          </div>
+
+          <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs space-y-2">
+            <CreditCard className="w-5 h-5 text-indigo-600" />
+            <h3 className="text-sm font-bold text-slate-900">PCI-DSS Payment Security</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              All payment transactions are handled exclusively via Razorpay's Level 1 PCI-DSS certified gateway. FLASH never stores or intercepts raw credit/debit card details.
             </p>
           </div>
 
           <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs space-y-2">
             <Server className="w-5 h-5 text-emerald-600" />
-            <h3 className="text-sm font-bold text-slate-900">Multi-Tenant Tenant Isolation</h3>
+            <h3 className="text-sm font-bold text-slate-900">Judge0 Sandboxed Execution</h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Strict row-level and institutional ID scoping prevents any cross-institutional data leakage between different colleges or universities.
+              Candidate coding solutions run within isolated, disposable Linux containers with strict CPU time limits, memory caps, and restricted network egress.
             </p>
           </div>
 
           <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs space-y-2">
-            <KeyRound className="w-5 h-5 text-indigo-600" />
+            <KeyRound className="w-5 h-5 text-amber-600" />
             <h3 className="text-sm font-bold text-slate-900">Role-Based Access Control (RBAC)</h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Fine-grained access tiers differentiate between Super Admins, College Admins, TPOs, Faculty Coordinators, and Students.
-            </p>
-          </div>
-
-          <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs space-y-2">
-            <FileCheck className="w-5 h-5 text-amber-600" />
-            <h3 className="text-sm font-bold text-slate-900">Audit Logging & Telemetry</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Placement officer actions, evaluation changes, and mock interview scores generate immutable audit logs for statutory compliance.
+              Cryptographic JWT authentication and scoped session policies ensure candidate profiles, test histories, and billing records remain private and tamper-proof.
             </p>
           </div>
         </div>
 
         <section className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3">
           <h2 className="text-base font-bold text-slate-900">
-            Self-Hosted & Private Cloud Deployment Options
+            Enterprise & Institutional Cloud Infrastructure
           </h2>
           <p className="text-xs text-slate-600 leading-relaxed">
-            For institutions with strict intranet or on-premise mandate regulations, SIPS can be deployed within an institution's private virtual cloud (VPC) or local campus server farm with complete containerized autonomy.
+            FLASH is engineered for high-throughput placement seasons and national coding contests. Our microservices architecture decouples candidate practice, coding evaluation, and AI mock interview pipelines with 99.9% availability.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Docker & Docker Compose
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Docker & Container Isolation
             </div>
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" /> PostgreSQL & Prisma
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" /> PostgreSQL & Redis Caching
             </div>
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Node.js & React Core
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Node.js & React Client Stack
             </div>
           </div>
         </section>
@@ -114,12 +114,14 @@ export function DataSecurityPage() {
       <footer className="border-t border-slate-200 bg-white py-8 text-xs text-slate-500">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 font-mono">
-            <img src="/branding/sips-mark.png" alt="SIPS Mark" className="w-4 h-4 object-contain" />
-            <span>SIPS Platform // Approved Baseline</span>
+            <img src="/branding/flash-logo-compact.png" alt="FLASH Logo" className="w-4 h-4 object-contain" />
+            <span>FLASH Platform // Engineering Placement Excellence</span>
           </div>
-          <div>© {new Date().getFullYear()} SIPS Institutional Placement Intelligence.</div>
+          <div>© {new Date().getFullYear()} FLASH Innovations. All rights reserved.</div>
         </div>
       </footer>
     </div>
   );
 }
+
+export default DataSecurityPage;
