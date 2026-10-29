@@ -1,11 +1,48 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-purple: #5D3BEE;
+  --color-brand-violet: #6C48F5;
+  --color-brand-deep: #4522C7;
+  --color-brand-dark: #1D1347;
+  --color-brand-amber: #FFB020;
+  --color-brand-amberDark: #F59E0B;
+  --color-brand-coral: #FF6B6B;
+  --color-brand-mint: #10B981;
+  --color-brand-cardBg: #FFFFFF;
+  --color-brand-surface: #F8F9FE;
+
+  --shadow-glow-purple: 0 20px 45px -10px rgba(93, 59, 238, 0.35);
+  --shadow-glow-amber: 0 10px 25px -5px rgba(255, 176, 32, 0.4);
+  --shadow-card-soft: 0 12px 32px -4px rgba(18, 24, 40, 0.08), 0 4px 12px -2px rgba(18, 24, 40, 0.04);
+  --shadow-dashboard: 0 25px 60px -12px rgba(29, 19, 71, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+}
+
 :root {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
 code, kbd, samp, pre {
   font-family: 'JetBrains Mono', monospace;
+}
+
+/* Contour lines background matching reference hero */
+.hero-contour-bg {
+  background-color: #5D3BEE;
+  background-image: 
+    radial-gradient(circle at 15% 25%, rgba(255, 255, 255, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 85% 75%, rgba(108, 72, 245, 0.8) 0%, transparent 50%),
+    url("data:image/svg+xml,%3Csvg width='1440' height='700' viewBox='0 0 1440 700' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M-100 200 C300 120, 600 450, 1100 220 C1300 120, 1500 280, 1600 350' stroke='rgba(255,255,255,0.07)' stroke-width='38' stroke-linecap='round' fill='none'/%3E%3Cpath d='M-50 350 C350 250, 700 550, 1200 360 C1400 280, 1550 420, 1650 500' stroke='rgba(255,255,255,0.06)' stroke-width='48' stroke-linecap='round' fill='none'/%3E%3Cpath d='M100 50 C450 30, 800 280, 1300 100' stroke='rgba(255,255,255,0.05)' stroke-width='24' fill='none'/%3E%3Cpath d='M-150 500 C200 420, 800 680, 1400 450' stroke='rgba(255,255,255,0.05)' stroke-width='60' fill='none'/%3E%3C/svg%3E");
+  background-position: center top;
+  background-size: cover;
+}
+
+/* Glassmorphism utilities */
+.glass-input {
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 /* Custom scrollbars */
@@ -14,12 +51,12 @@ code, kbd, samp, pre {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #F1F3F9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #CBD5E1;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #94A3B8;
 }
