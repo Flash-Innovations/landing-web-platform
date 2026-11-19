@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useParams } from "react-router-dom";
 import { LandingPage } from "../pages/LandingPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { STUDENT_PORTAL_URL } from "../config/env";
@@ -33,11 +33,32 @@ function PortalRedirect({ to }) {
   );
 }
 
+function PublicProfileRedirect() {
+  const { username } = useParams();
+  useEffect(() => {
+    if (username) {
+      window.location.replace(`${STUDENT_PORTAL_URL}/u/${encodeURIComponent(username)}`);
+    }
+  }, [username]);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-900 text-slate-300">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
+        <p className="text-xs font-mono font-medium text-slate-400">Resolving Flash Candidate Portfolio...</p>
+      </div>
+    </div>
+  );
+}
+
 export function AppRoutes() {
   return (
     <Suspense fallback={<RouteLoadingFallback />}>
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        
+        {/* Public Candidate Career Portfolio Vanity Redirect */}
+        <Route path="/u/:username" element={<PublicProfileRedirect />} />
         
         {/* Student Portal Onboarding & Auth Redirect Routes */}
         <Route path="/login" element={<PortalRedirect to={`${STUDENT_PORTAL_URL}/login`} />} />

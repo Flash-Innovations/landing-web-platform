@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/u/:username",
+      "destination": "https://student.flashedu.in/u/:username"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
