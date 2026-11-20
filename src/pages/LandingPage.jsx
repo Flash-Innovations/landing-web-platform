@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import {
-  ArrowRight,
+  Swords,
+  Trophy,
+  Zap,
   ShieldCheck,
   CheckCircle2,
   Code2,
@@ -16,6 +17,7 @@ import {
   Check,
   X,
   ChevronDown,
+  ChevronRight,
   LayoutDashboard,
   Timer,
   Bot,
@@ -24,18 +26,24 @@ import {
   AlertCircle,
   Menu,
   Clock,
-  UploadCloud,
-  PlayCircle
+  PlayCircle,
+  Lock,
+  Flame,
+  Users,
+  Target,
+  Terminal,
+  ExternalLink,
+  Cpu,
+  Layers,
+  ArrowRight
 } from "lucide-react";
 import { Footer } from "../components/common/Footer";
-import { DailyTrendChart } from "../components/landing/DailyTrendChart";
 import { ReadinessRadarChart } from "../components/landing/ReadinessRadarChart";
-import { STUDENT_PORTAL_URL } from "../config/env";
+import { ARENA_PORTAL_URL } from "../config/env";
 
 export function LandingPage({ defaultScrollTo = null }) {
   // Navigation & Interactive states
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
   const [isYearly, setIsYearly] = useState(false);
   const [activeFaq, setActiveFaq] = useState(null);
 
@@ -43,16 +51,11 @@ export function LandingPage({ defaultScrollTo = null }) {
   const [codeLanguage, setCodeLanguage] = useState("Python 3.11");
   const [codeRunState, setCodeRunState] = useState("idle"); // 'idle' | 'running' | 'success'
 
-  // Modals
+  // Modals & Announcements
+  const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
+  const [comingSoonFeature, setComingSoonFeature] = useState("");
   const [questionModalOpen, setQuestionModalOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
-
-  const [interviewModalOpen, setInterviewModalOpen] = useState(false);
-  const [interviewInput, setInterviewInput] = useState("");
-  const [interviewFeedbackOpen, setInterviewFeedbackOpen] = useState(false);
-
-  const [resumeModalOpen, setResumeModalOpen] = useState(false);
-  const [resumeScanOpen, setResumeScanOpen] = useState(false);
 
   // Toast feedback
   const [toastMsg, setToastMsg] = useState(null);
@@ -70,59 +73,48 @@ export function LandingPage({ defaultScrollTo = null }) {
     }
   }, [toastMsg]);
 
-  // Code snippets by language
+  // Code snippets by language for interactive arena preview
   const codeSnippets = {
-    "Python 3.11": `def lengthOfLongestSubstring(s: str) -> int:
-    char_map = {}
-    left = 0
-    max_len = 0
-    
-    for right in range(len(s)):
-        if s[right] in char_map and char_map[s[right]] >= left:
-            left = char_map[s[right]] + 1
-        char_map[s[right]] = right
-        max_len = max(max_len, right - left + 1)
-        
-    return max_len`,
-    "C++ 20": `int lengthOfLongestSubstring(string s) {
-    unordered_map<char, int> charMap;
-    int left = 0, maxLen = 0;
-    
-    for (int right = 0; right < s.length(); ++right) {
-        if (charMap.count(s[right]) && charMap[s[right]] >= left) {
-            left = charMap[s[right]] + 1;
+    "Python 3.11": `def twoSum(nums: list[int], target: int) -> list[int]:
+    lookup = {}
+    for i, num in enumerate(nums):
+        complement = target - num
+        if complement in lookup:
+            return [lookup[complement], i]
+        lookup[num] = i
+    return []`,
+    "C++ 20": `vector<int> twoSum(vector<int>& nums, int target) {
+    unordered_map<int, int> lookup;
+    for (int i = 0; i < nums.size(); ++i) {
+        int complement = target - nums[i];
+        if (lookup.count(complement)) {
+            return {lookup[complement], i};
         }
-        charMap[s[right]] = right;
-        maxLen = max(maxLen, right - left + 1);
+        lookup[nums[i]] = i;
     }
-    return maxLen;
+    return {};
 }`,
-    "Java 17": `public int lengthOfLongestSubstring(String s) {
-    Map<Character, Integer> charMap = new HashMap<>();
-    int left = 0, maxLen = 0;
-    
-    for (int right = 0; right < s.length(); right++) {
-        char c = s.charAt(right);
-        if (charMap.containsKey(c) && charMap.get(c) >= left) {
-            left = charMap.get(c) + 1;
+    "Java 17": `public int[] twoSum(int[] nums, int target) {
+    Map<Integer, Integer> map = new HashMap<>();
+    for (int i = 0; i < nums.length; i++) {
+        int complement = target - nums[i];
+        if (map.containsKey(complement)) {
+            return new int[] { map.get(complement), i };
         }
-        charMap.put(c, right);
-        maxLen = Math.max(maxLen, right - left + 1);
+        map.put(nums[i], i);
     }
-    return maxLen;
+    return new int[0];
 }`,
-    "JavaScript (ES6)": `function lengthOfLongestSubstring(s) {
-    const charMap = new Map();
-    let left = 0, maxLen = 0;
-    
-    for (let right = 0; right < s.length; right++) {
-        if (charMap.has(s[right]) && charMap[s[right]] >= left) {
-            left = charMap[s[right]] + 1;
+    "JavaScript (ES6)": `function twoSum(nums, target) {
+    const map = new Map();
+    for (let i = 0; i < nums.length; i++) {
+        const complement = target - nums[i];
+        if (map.has(complement)) {
+            return [map.get(complement), i];
         }
-        charMap.set(s[right], right);
-        maxLen = Math.max(maxLen, right - left + 1);
+        map.set(nums[i], i);
     }
-    return maxLen;
+    return [];
 }`
   };
 
@@ -130,12 +122,13 @@ export function LandingPage({ defaultScrollTo = null }) {
     setCodeRunState("running");
     setTimeout(() => {
       setCodeRunState("success");
-      showToast("Code executed with sub-second feedback! (3/3 Passed)");
-    }, 400);
+      showToast("Code executed against test suites: 3/3 Passed (38ms runtime)");
+    }, 450);
   };
 
-  const goToStudentPortal = (path = "") => {
-    window.location.href = `${STUDENT_PORTAL_URL}${path}`;
+  const handleCareerSuiteClick = (featureName = "Flash Career Suite") => {
+    setComingSoonFeature(featureName);
+    setComingSoonModalOpen(true);
   };
 
   const scrollToSection = (id) => {
@@ -151,67 +144,83 @@ export function LandingPage({ defaultScrollTo = null }) {
   }, [defaultScrollTo]);
 
   return (
-    <div className="min-h-screen bg-brand-surface text-slate-800 font-sans antialiased selection:bg-brand-purple selection:text-white flex flex-col">
-      
+    <div className="min-h-screen bg-[#09090D] text-slate-100 font-sans antialiased selection:bg-indigo-600 selection:text-white flex flex-col">
+
       {/* ================= TOP NOTICE BAR ================= */}
-      <div className="bg-brand-dark text-white text-xs py-2 px-4 border-b border-indigo-900/50">
+      <div className="bg-[#0D0C1D] text-white text-xs py-2 px-4 border-b border-indigo-950/80">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
           <div className="flex items-center gap-2 justify-center">
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-amber text-brand-dark">
-              FREE STARTER
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-slate-950 tracking-wider">
+              SEASON 1 LIVE
             </span>
-            <span className="text-slate-300">
-              100 Subject & Aptitude MCQs + 50 Core DSA Problems available free today!
+            <span className="text-slate-300 font-medium">
+              1v1 Speed DSA Battles, Code Golf and Gladiator ELO Ladders are open.
             </span>
           </div>
-          <div className="flex items-center gap-3 text-[11px] text-indigo-200">
+          <div className="flex items-center gap-3 text-[11px] text-indigo-300">
             <span className="flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Razorpay Secured
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Anti-Cheat Verified
             </span>
-            <span className="text-slate-600">•</span>
+            <span className="text-slate-700">•</span>
             <span className="flex items-center gap-1">
-              <RotateCcw className="w-3.5 h-3.5 text-brand-amber" /> 7-Day Refund Policy
+              <Zap className="w-3.5 h-3.5 text-amber-400" /> Sub-50ms WebSocket Sync
             </span>
           </div>
         </div>
       </div>
 
       {/* ================= HERO & NAVIGATION WRAPPER ================= */}
-      <header className="hero-contour-bg relative text-white pt-4 pb-28 md:pb-36 overflow-hidden">
+      <header className="hero-contour-bg relative text-white pt-3 pb-24 md:pb-32 overflow-hidden border-b border-white/5">
+        
         {/* Navbar */}
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             
-            {/* Brand Logo with official mascot */}
+            {/* Brand Logo */}
             <a href="#hero" className="flex items-center gap-3 group">
               <div className="bg-white rounded-2xl p-1 shadow-lg group-hover:scale-105 transition-transform flex items-center justify-center">
                 <img
                   src="/branding/flash-logo-compact.png"
-                  alt="FLASH Mascot"
-                  className="h-9 w-9 object-contain"
+                  alt="FLASH Logo"
+                  className="h-8 w-8 object-contain"
                 />
               </div>
               <div className="flex flex-col">
                 <span className="text-2xl font-black tracking-tight text-white flex items-center gap-0.5">
-                  FLASH<span className="text-brand-amber text-xl leading-none">.</span>
+                  FLASH<span className="text-amber-400 text-xl leading-none">.</span>
                 </span>
-                <span className="text-[10px] font-semibold text-indigo-200 tracking-wider uppercase -mt-1">
-                  Placement Arena
+                <span className="text-[10px] font-bold text-indigo-300 tracking-wider uppercase -mt-1">
+                  Esports & Placement Arena
                 </span>
               </div>
             </a>
 
             {/* Desktop Navigation Links */}
-            <div className="hidden md:flex items-center gap-8 text-sm font-medium text-indigo-100">
-              <a href="#features" className="hover:text-white transition-colors">
-                Features
+            <div className="hidden lg:flex items-center gap-7 text-xs font-semibold text-slate-300">
+              <a href="#hero" className="hover:text-amber-400 transition-colors flex items-center gap-1">
+                <Swords className="w-3.5 h-3.5 text-amber-400" /> 1v1 Arena
               </a>
-              <a href="#practice-hub" className="hover:text-white transition-colors">
-                Practice Hub
+              <a href="#modes" className="hover:text-white transition-colors">
+                Game Modes
               </a>
-              <a href="#readiness" className="hover:text-white transition-colors">
-                Readiness Tracker
+              <a href="#battle-chamber" className="hover:text-white transition-colors">
+                Battle Chamber
               </a>
+              <a href="#tiers" className="hover:text-white transition-colors">
+                Gladiator Tiers
+              </a>
+              <a href="#tournaments" className="hover:text-white transition-colors">
+                Tournaments
+              </a>
+              <button
+                onClick={() => handleCareerSuiteClick("Flash Career Suite")}
+                className="hover:text-indigo-300 transition-colors flex items-center gap-1.5 text-indigo-300/90 cursor-pointer"
+              >
+                <span>Career Suite</span>
+                <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-indigo-950 text-indigo-300 border border-indigo-700/60 uppercase">
+                  Coming Soon
+                </span>
+              </button>
               <a href="#pricing" className="hover:text-white transition-colors">
                 Pricing
               </a>
@@ -223,21 +232,22 @@ export function LandingPage({ defaultScrollTo = null }) {
             {/* Auth & CTA Buttons */}
             <div className="flex items-center gap-3">
               <a
-                href={`${STUDENT_PORTAL_URL}/login`}
-                className="text-sm font-semibold text-white/90 hover:text-white px-3 py-2 transition-colors cursor-pointer"
+                href={`${ARENA_PORTAL_URL}/login`}
+                className="text-xs sm:text-sm font-semibold text-slate-300 hover:text-white px-3 py-2 transition-colors cursor-pointer"
               >
-                Log in
+                Sign In
               </a>
               <a
-                href={`${STUDENT_PORTAL_URL}/register`}
-                className="bg-white text-brand-purple hover:bg-slate-50 px-5 py-2 rounded-full text-sm font-bold shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer"
+                href={ARENA_PORTAL_URL}
+                className="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-950 px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-black shadow-glow-amber transition-all transform hover:-translate-y-0.5 cursor-pointer"
               >
-                Sign up
+                <Swords className="w-4 h-4 text-slate-950" />
+                <span>Enter 1v1 Arena</span>
               </a>
               {/* Mobile Menu Trigger */}
               <button
                 onClick={() => setMobileNavOpen(!mobileNavOpen)}
-                className="md:hidden text-white p-2 rounded-lg hover:bg-white/10"
+                className="lg:hidden text-white p-2 rounded-lg hover:bg-white/10"
                 aria-label="Toggle menu"
               >
                 <Menu className="w-6 h-6" />
@@ -247,29 +257,55 @@ export function LandingPage({ defaultScrollTo = null }) {
 
           {/* Mobile dropdown nav */}
           {mobileNavOpen && (
-            <div className="md:hidden pt-4 pb-3 border-t border-white/10 mt-2 bg-brand-deep/95 backdrop-blur-md rounded-2xl px-4 shadow-xl">
-              <div className="flex flex-col space-y-3 text-sm font-medium text-white/90">
+            <div className="lg:hidden pt-4 pb-3 border-t border-white/10 mt-2 bg-[#121217]/95 backdrop-blur-md rounded-2xl px-4 shadow-2xl border border-white/10">
+              <div className="flex flex-col space-y-3 text-sm font-medium text-slate-200">
                 <a
-                  href="#features"
+                  href="#hero"
+                  onClick={() => setMobileNavOpen(false)}
+                  className="py-2 hover:text-amber-400 flex items-center gap-2"
+                >
+                  <Swords className="w-4 h-4 text-amber-400" /> 1v1 Arena
+                </a>
+                <a
+                  href="#modes"
                   onClick={() => setMobileNavOpen(false)}
                   className="py-2 hover:text-white"
                 >
-                  Features
+                  Game Modes
                 </a>
                 <a
-                  href="#practice-hub"
+                  href="#battle-chamber"
                   onClick={() => setMobileNavOpen(false)}
                   className="py-2 hover:text-white"
                 >
-                  Practice Hub
+                  Battle Chamber Simulator
                 </a>
                 <a
-                  href="#readiness"
+                  href="#tiers"
                   onClick={() => setMobileNavOpen(false)}
                   className="py-2 hover:text-white"
                 >
-                  Readiness Tracker
+                  Gladiator Tiers & Profiles
                 </a>
+                <a
+                  href="#tournaments"
+                  onClick={() => setMobileNavOpen(false)}
+                  className="py-2 hover:text-white"
+                >
+                  College Tournaments
+                </a>
+                <button
+                  onClick={() => {
+                    setMobileNavOpen(false);
+                    handleCareerSuiteClick("Flash Career Suite");
+                  }}
+                  className="py-2 text-left hover:text-indigo-300 flex items-center justify-between"
+                >
+                  <span>Career Suite</span>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-950 text-indigo-300 border border-indigo-700/60">
+                    Coming Soon
+                  </span>
+                </button>
                 <a
                   href="#pricing"
                   onClick={() => setMobileNavOpen(false)}
@@ -289,1676 +325,1125 @@ export function LandingPage({ defaultScrollTo = null }) {
           )}
         </nav>
 
-        {/* ================= HERO CONTENT SECTION ================= */}
-        <div id="hero" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 md:pt-20 text-center relative z-10">
+        {/* ================= HERO CONTENT SECTION (70% FOCUS) ================= */}
+        <div id="hero" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 md:pt-20 text-center relative z-10">
           
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-xs sm:text-sm font-medium mb-6 shadow-sm">
-            <span className="flex h-2 w-2 rounded-full bg-brand-amber animate-pulse"></span>
-            <span>AI-Powered Placement Preparation & Interview Mastery</span>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-indigo-200 text-xs sm:text-sm font-semibold mb-6 shadow-sm">
+            <span className="flex h-2 w-2 rounded-full bg-amber-400 animate-pulse"></span>
+            <span>FLASH ARENA 2.0 • REAL-TIME SPEED CODING ESPORTS</span>
           </div>
 
           {/* Hero Main Title */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1] mb-6">
-            Your placement preparation.<br className="hidden sm:inline" />{" "}
-            <span className="text-white drop-shadow-sm">One platform.</span>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.1] mb-6">
+            The 1v1 Coding Arena Where<br className="hidden sm:inline" />{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500">
+              Skills Settle The Score.
+            </span>
           </h1>
 
           {/* Hero Subhead */}
-          <p className="max-w-3xl mx-auto text-base sm:text-lg md:text-xl text-indigo-100 font-normal leading-relaxed mb-10">
-            Practice aptitude, master coding, take timed company assessments, and prepare for technical interviews with a structured learning experience built for campus placements.
+          <p className="max-w-3xl mx-auto text-base sm:text-lg md:text-xl text-slate-300 font-normal leading-relaxed mb-10">
+            Step into the Battle Chamber. Challenge coders head-to-head in real-time DSA races, optimize byte length in Code Golf, climb official Gladiator ELO tiers, and dominate college tournament brackets.
           </p>
 
-          {/* Start Practicing Free Button */}
-          <div className="max-w-xl mx-auto mb-8 flex flex-col items-center">
+          {/* Primary Action Buttons */}
+          <div className="max-w-2xl mx-auto mb-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
-              href={`${STUDENT_PORTAL_URL}/register`}
-              className="inline-flex items-center justify-center gap-3 bg-brand-amber hover:bg-brand-amberDark text-brand-dark px-10 py-4 rounded-full text-base sm:text-lg font-black shadow-glow-amber transition-all transform hover:scale-105 active:scale-95 group cursor-pointer"
+              href={ARENA_PORTAL_URL}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-amber-400 hover:bg-amber-300 text-slate-950 px-8 py-4 rounded-full text-base sm:text-lg font-black shadow-glow-amber transition-all transform hover:scale-105 active:scale-95 group cursor-pointer"
             >
-              <span>Start Practicing Free</span>
+              <Swords className="w-5 h-5 text-slate-950" />
+              <span>Enter 1v1 Arena Queue</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </a>
-            <div className="flex items-center justify-center gap-6 mt-4 text-xs text-indigo-200 font-medium flex-wrap">
-              <span className="flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5 text-brand-amber" /> 100 MCQs + 50 DSA Free
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5 text-brand-amber" /> Instant Access
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5 text-brand-amber" /> No Credit Card Required
-              </span>
+
+            <button
+              onClick={() => scrollToSection("battle-chamber")}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15 text-white border border-white/15 px-7 py-4 rounded-full text-base font-bold backdrop-blur-md transition-all cursor-pointer"
+            >
+              <Terminal className="w-5 h-5 text-indigo-300" />
+              <span>Try Battle Simulator</span>
+            </button>
+          </div>
+
+          {/* Quick Metrics Bar */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-4 pb-2 text-left">
+            <div className="bg-[#121217]/80 border border-white/10 rounded-2xl p-4 backdrop-blur-sm">
+              <div className="flex items-center gap-2 text-amber-400 text-xs font-bold mb-1 uppercase tracking-wider">
+                <Zap className="w-3.5 h-3.5" /> Latency
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-white">&lt; 50ms</div>
+              <div className="text-[11px] text-slate-400">WebSocket synced match states</div>
+            </div>
+
+            <div className="bg-[#121217]/80 border border-white/10 rounded-2xl p-4 backdrop-blur-sm">
+              <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold mb-1 uppercase tracking-wider">
+                <ShieldCheck className="w-3.5 h-3.5" /> Anti-Cheat
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-white">100% Verified</div>
+              <div className="text-[11px] text-slate-400">Webcam & focus lock telemetry</div>
+            </div>
+
+            <div className="bg-[#121217]/80 border border-white/10 rounded-2xl p-4 backdrop-blur-sm">
+              <div className="flex items-center gap-2 text-indigo-400 text-xs font-bold mb-1 uppercase tracking-wider">
+                <Crown className="w-3.5 h-3.5" /> Gladiator Ranks
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-white">6 ELO Tiers</div>
+              <div className="text-[11px] text-slate-400">Recruit to Grand Champion</div>
+            </div>
+
+            <div className="bg-[#121217]/80 border border-white/10 rounded-2xl p-4 backdrop-blur-sm">
+              <div className="flex items-center gap-2 text-cyan-400 text-xs font-bold mb-1 uppercase tracking-wider">
+                <Users className="w-3.5 h-3.5" /> Vanity Profiles
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-white">flashedu.in/u/*</div>
+              <div className="text-[11px] text-slate-400">Permanent esports resume URL</div>
             </div>
           </div>
 
-          {/* Quick Action Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <button
-              onClick={() => scrollToSection("interactive-demo")}
-              className="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-6 py-2.5 rounded-full text-sm font-semibold backdrop-blur-md transition-all flex items-center gap-2 cursor-pointer"
-            >
-              <PlayCircle className="w-4 h-4 text-brand-amber" /> Explore Interactive Features
-            </button>
-            <button
-              onClick={() => scrollToSection("pricing")}
-              className="text-indigo-100 hover:text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-colors flex items-center gap-1.5 cursor-pointer"
-            >
-              <Sparkles className="w-4 h-4" /> View Plans (from ₹0 to ₹199/mo)
-            </button>
-          </div>
-
-        </div>
-
-        {/* ================= FLOATING APP DASHBOARD PREVIEW ================= */}
-        <div id="interactive-demo" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-14 relative z-20">
-          <div className="relative bg-white rounded-3xl shadow-dashboard border border-white/70 p-4 sm:p-6 md:p-8 text-slate-800 transition-all">
+          {/* ================= INTERACTIVE SPLIT 1V1 BATTLE CHAMBER MOCKUP ================= */}
+          <div className="mt-12 max-w-5xl mx-auto rounded-3xl bg-[#0F0E17] border border-white/15 shadow-2xl overflow-hidden text-left relative">
             
-            {/* Mockup Top Bar: User Welcome + Status Badges */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 mb-6 border-b border-slate-100 gap-4">
-              <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-purple to-indigo-400 text-white flex items-center justify-center font-bold text-lg shadow-md">
-                  RS
+            {/* Battle Chamber Header Bar */}
+            <div className="bg-[#171624] px-4 sm:px-6 py-3 border-b border-white/10 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-rose-500 animate-pulse"></span>
+                <span className="text-xs font-black tracking-wider text-rose-400 uppercase">
+                  LIVE 1V1 RANKED DUEL
+                </span>
+                <span className="text-slate-600 hidden sm:inline">•</span>
+                <span className="text-xs text-slate-300 font-mono hidden sm:inline">
+                  ROOM #8841 • TWO SUM II (ARRAY IS SORTED)
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="px-2.5 py-1 rounded-md bg-amber-400/10 text-amber-300 border border-amber-400/30 font-bold flex items-center gap-1.5">
+                  <Flame className="w-3.5 h-3.5 text-amber-400" />
+                  Stakes: +28 ELO / -22 ELO
+                </span>
+              </div>
+            </div>
+
+            {/* Split Screen Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/10">
+              
+              {/* Left Side: Player 1 (You) */}
+              <div className="p-5 sm:p-6 bg-[#0E0D18]/90 relative">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-600 to-indigo-400 p-0.5 shadow-md">
+                      <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-xs font-black text-indigo-300">
+                        YOU
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-sm font-bold text-white flex items-center gap-1.5">
+                        harshsage
+                        <span className="px-1.5 py-0.2 rounded text-[10px] font-black bg-amber-400 text-slate-950">
+                          GLADIATOR IV
+                        </span>
+                      </div>
+                      <div className="text-xs text-slate-400 font-mono">Rating: 1840 • Win Rate: 68.4%</div>
+                    </div>
+                  </div>
+                  {/* Chess Clock Player 1 */}
+                  <div className="bg-[#1C1A2E] border border-amber-400/40 rounded-xl px-3 py-1.5 text-right shadow-glow-amber">
+                    <div className="text-[10px] uppercase font-bold text-amber-300 flex items-center gap-1 justify-end">
+                      <Timer className="w-3 h-3 text-amber-400" /> Clock
+                    </div>
+                    <div className="text-base sm:text-lg font-mono font-black text-amber-400">
+                      03:42
+                    </div>
+                  </div>
                 </div>
-                <div>
+
+                {/* Editor Code Preview */}
+                <div className="bg-[#090810] border border-white/10 rounded-xl p-3 font-mono text-[11px] leading-relaxed text-indigo-200 mb-4 overflow-hidden shadow-inner">
+                  <div className="text-slate-500 mb-1">// Optimal Two-Pointer Algorithm</div>
+                  <div className="text-emerald-400">def twoSum(numbers: list[int], target: int):</div>
+                  <div className="pl-4 text-slate-300">left, right = 0, len(numbers) - 1</div>
+                  <div className="pl-4 text-slate-300">while left &lt; right:</div>
+                  <div className="pl-8 text-slate-300">curr_sum = numbers[left] + numbers[right]</div>
+                  <div className="pl-8 text-amber-300">if curr_sum == target: return [left + 1, right + 1]</div>
+                  <div className="pl-8 text-indigo-300">elif curr_sum &lt; target: left += 1</div>
+                  <div className="pl-8 text-indigo-300">else: right -= 1</div>
+                </div>
+
+                {/* Test Cases Passed Badge */}
+                <div className="bg-emerald-950/40 border border-emerald-500/40 rounded-xl p-3 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-bold text-slate-900">Hello, Rahul Sharma 👋</h3>
-                    <span className="bg-amber-100 text-amber-800 text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                      🔥 14-Day Streak
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                    <div>
+                      <div className="text-xs font-bold text-emerald-300">5/5 Test Suites Accepted</div>
+                      <div className="text-[10px] text-emerald-400/80 font-mono">Runtime: 42ms • Memory: 14.8MB</div>
+                    </div>
+                  </div>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-black bg-emerald-500 text-slate-950 uppercase">
+                    100% AC
+                  </span>
+                </div>
+              </div>
+
+              {/* Right Side: Player 2 (Challenger) */}
+              <div className="p-5 sm:p-6 bg-[#0E0D18]/90 relative">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-rose-600 to-rose-400 p-0.5 shadow-md">
+                      <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-xs font-black text-rose-300">
+                        VS
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-sm font-bold text-white flex items-center gap-1.5">
+                        rival_coder_99
+                        <span className="px-1.5 py-0.2 rounded text-[10px] font-black bg-indigo-500/30 text-indigo-300 border border-indigo-400/30">
+                          GLADIATOR IV
+                        </span>
+                      </div>
+                      <div className="text-xs text-slate-400 font-mono">Rating: 1812 • Win Rate: 64.1%</div>
+                    </div>
+                  </div>
+                  {/* Chess Clock Player 2 */}
+                  <div className="bg-[#1C1A2E] border border-rose-500/40 rounded-xl px-3 py-1.5 text-right">
+                    <div className="text-[10px] uppercase font-bold text-rose-300 flex items-center gap-1 justify-end">
+                      <Timer className="w-3 h-3 text-rose-400" /> Clock
+                    </div>
+                    <div className="text-base sm:text-lg font-mono font-black text-rose-400">
+                      02:18
+                    </div>
+                  </div>
+                </div>
+
+                {/* Opponent Code Stream (Blurred / Obscured) */}
+                <div className="bg-[#090810] border border-white/10 rounded-xl p-3 font-mono text-[11px] leading-relaxed text-slate-400 mb-4 overflow-hidden relative select-none">
+                  <div className="absolute inset-0 backdrop-blur-[2px] bg-slate-950/40 flex items-center justify-center z-10">
+                    <span className="px-3 py-1 rounded-full bg-slate-900/90 border border-white/20 text-xs font-mono text-indigo-200 flex items-center gap-1.5 shadow-lg">
+                      <Zap className="w-3.5 h-3.5 text-amber-400 animate-spin" />
+                      Opponent typing at 78 WPM...
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500 font-medium">
-                    Aspiring Software Engineer • Target: SDE-1 / Software Developer
-                  </p>
+                  <div className="text-slate-600">// Opponent Keystream Synced</div>
+                  <div>vector&lt;int&gt; twoSum(vector&lt;int&gt;&amp; numbers, int target) &#123;</div>
+                  <div className="pl-4">int i = 0, j = numbers.size() - 1;</div>
+                  <div className="pl-4">while(i &lt; j) &#123;</div>
+                  <div className="pl-8">if(numbers[i] + numbers[j] == target) return &#123;i+1, j+1&#125;;</div>
+                  <div className="pl-4">&#125;</div>
+                </div>
+
+                {/* Challenger Test Cases Status */}
+                <div className="bg-amber-950/30 border border-amber-500/30 rounded-xl p-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="w-5 h-5 text-amber-400" />
+                    <div>
+                      <div className="text-xs font-bold text-amber-300">3/5 Test Suites Accepted</div>
+                      <div className="text-[10px] text-rose-400 font-mono">Test #4: Time Limit Exceeded (TLE)</div>
+                    </div>
+                  </div>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-black bg-amber-500/20 text-amber-300 border border-amber-500/40 uppercase">
+                    Revision #3
+                  </span>
                 </div>
               </div>
 
-              {/* XP & Readiness Score Widgets */}
-              <div className="flex items-center gap-3">
-                <div className="bg-indigo-50 border border-indigo-100 px-4 py-2 rounded-2xl flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-brand-purple text-white flex items-center justify-center text-sm font-bold shadow-sm">
-                    ⚡
-                  </div>
-                  <div>
-                    <span className="text-xs text-slate-500 block font-medium">Practice XP</span>
-                    <span className="text-sm font-extrabold text-brand-purple">2,450 XP</span>
-                  </div>
-                </div>
-
-                <div className="bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-2xl flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-sm font-bold shadow-sm">
-                    🎯
-                  </div>
-                  <div>
-                    <span className="text-xs text-slate-500 block font-medium">Placement Ready</span>
-                    <span className="text-sm font-extrabold text-emerald-600">84% Score</span>
-                  </div>
-                </div>
-              </div>
             </div>
 
-            {/* Interactive Mockup Feature Navigation Tabs */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-6 border-b border-slate-100">
-              <button
-                onClick={() => setActiveTab("overview")}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-                  activeTab === "overview"
-                    ? "bg-brand-purple text-white shadow-sm"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                }`}
+            {/* Bottom Match Footer */}
+            <div className="bg-[#12111E] px-6 py-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
+              <div className="flex items-center gap-2 font-mono">
+                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span>Anti-Cheat Status: Hardware Webcam Active • Browser Window Locked</span>
+              </div>
+              <a
+                href={ARENA_PORTAL_URL}
+                className="text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1 cursor-pointer"
               >
-                <LayoutDashboard className="w-4 h-4" /> Readiness Dashboard
-              </button>
-              <button
-                onClick={() => setActiveTab("aptitude")}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-                  activeTab === "aptitude"
-                    ? "bg-brand-purple text-white shadow-sm font-bold"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                }`}
-              >
-                <Brain className="w-4 h-4" /> Practice Hub
-              </button>
-              <button
-                onClick={() => setActiveTab("coding")}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-                  activeTab === "coding"
-                    ? "bg-brand-purple text-white shadow-sm font-bold"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                }`}
-              >
-                <Code2 className="w-4 h-4" /> Coding Arena
-              </button>
-              <button
-                onClick={() => setActiveTab("assessments")}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-                  activeTab === "assessments"
-                    ? "bg-brand-purple text-white shadow-sm font-bold"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                }`}
-              >
-                <Timer className="w-4 h-4" /> Timed Mock Tests
-              </button>
-              <button
-                onClick={() => setActiveTab("interview")}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-                  activeTab === "interview"
-                    ? "bg-brand-purple text-white shadow-sm font-bold"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                }`}
-              >
-                <Bot className="w-4 h-4" /> AI Mock Interview
-              </button>
+                Launch Live Matchmaker <ChevronRight className="w-4 h-4" />
+              </a>
             </div>
-
-            {/* ================= TAB 1: OVERVIEW & READINESS ================= */}
-            {activeTab === "overview" && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                
-                {/* Left Column (7 cols): Today's Active Placement Modules */}
-                <div className="lg:col-span-7 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-bold text-slate-900 tracking-wide uppercase">
-                      Today's Placement Modules
-                    </h4>
-                    <span
-                      className="text-xs font-semibold text-brand-purple hover:underline cursor-pointer"
-                      onClick={() => {
-                        setSelectedOption(null);
-                        setQuestionModalOpen(true);
-                      }}
-                    >
-                      Solve Next Problem &rarr;
-                    </span>
-                  </div>
-
-                  {/* Card 1: Aptitude & Reasoning */}
-                  <div className="p-4 rounded-2xl border border-slate-200/80 bg-white hover:border-brand-purple/40 hover:shadow-card-soft transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-12 h-12 rounded-2xl bg-violet-100 text-brand-purple flex items-center justify-center font-bold text-xl flex-shrink-0">
-                        📖
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h5 className="text-sm font-bold text-slate-900">
-                            Permutations, Probability & Speed Math
-                          </h5>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-100 text-brand-purple">
-                            Aptitude
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-500 mt-0.5">
-                          24 of 30 problems completed • 92% Accuracy
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 self-end sm:self-center">
-                      <div className="text-right">
-                        <span className="text-xs font-bold text-emerald-600">80% Done</span>
-                        <div className="w-20 bg-slate-100 h-2 rounded-full mt-1 overflow-hidden">
-                          <div className="bg-emerald-500 h-full rounded-full" style={{ width: "80%" }}></div>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => {
-                          setSelectedOption(null);
-                          setQuestionModalOpen(true);
-                        }}
-                        className="px-3.5 py-1.5 rounded-xl bg-brand-purple hover:bg-brand-deep text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
-                      >
-                        Continue
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Card 2: Coding & DSA */}
-                  <div className="p-4 rounded-2xl border border-slate-200/80 bg-white hover:border-brand-purple/40 hover:shadow-card-soft transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xl flex-shrink-0">
-                        💻
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h5 className="text-sm font-bold text-slate-900">
-                            Binary Tree Traversals & Recursion
-                          </h5>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
-                            Coding Arena
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-500 mt-0.5">
-                          Medium Difficulty • C++, Java, Python supported
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 self-end sm:self-center">
-                      <div className="text-right">
-                        <span className="text-xs font-bold text-amber-600">65% Done</span>
-                        <div className="w-20 bg-slate-100 h-2 rounded-full mt-1 overflow-hidden">
-                          <div className="bg-amber-500 h-full rounded-full" style={{ width: "65%" }}></div>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => setActiveTab("coding")}
-                        className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
-                      >
-                        Code Now
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Learning Activity Chart inside Dashboard Mockup */}
-                  <div className="p-4 rounded-2xl border border-slate-200/80 bg-slate-50/70">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                        <TrendingUp className="w-4 h-4 text-brand-purple" /> Daily Accuracy & Practice Trend
-                      </span>
-                      <span className="text-[11px] font-semibold text-slate-500">
-                        Last 7 Days (Avg: 88%)
-                      </span>
-                    </div>
-                    <div className="relative h-44 w-full">
-                      <DailyTrendChart />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Column (5 cols): Badges, Target & Quick Stats */}
-                <div className="lg:col-span-5 space-y-4">
-                  
-                  {/* Set Target & Timeline Card */}
-                  <div className="p-5 rounded-3xl bg-gradient-to-br from-pink-500 to-rose-500 text-white shadow-md relative overflow-hidden">
-                    <div className="relative z-10">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-[11px] font-extrabold uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full">
-                          Goal Tracker
-                        </span>
-                        <Flag className="w-4 h-4 text-white" />
-                      </div>
-                      <h4 className="text-base font-bold mb-1">
-                        Target Role: SDE-1 / Software Developer
-                      </h4>
-                      <p className="text-xs text-pink-100 mb-3">
-                        Next Timed Mock Test: TCS NQT & Infosys DSE in 2 days
-                      </p>
-                      <div className="flex items-center justify-between text-xs bg-white/10 rounded-xl p-2.5 backdrop-blur-sm">
-                        <span>Questions Solved: <strong>412 / 500</strong></span>
-                        <span className="font-bold text-white">82%</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Milestone & Achievement Badge */}
-                  <div className="p-5 rounded-3xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-md flex items-center justify-between gap-4">
-                    <div>
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider bg-white/25 px-2 py-0.5 rounded-full">
-                        Achievement
-                      </span>
-                      <h4 className="text-base font-bold mt-1.5">Aptitude Master Rank</h4>
-                      <p className="text-xs text-amber-100 mt-0.5">
-                        Top 8% percentile among active candidates
-                      </p>
-                    </div>
-                    <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-3xl shadow-inner flex-shrink-0">
-                      🏅
-                    </div>
-                  </div>
-
-                  {/* Weak Area Diagnostic & Recommended Action */}
-                  <div className="p-4 rounded-2xl border border-slate-200 bg-white">
-                    <h5 className="text-xs font-bold text-slate-900 mb-2 flex items-center gap-1.5">
-                      <AlertCircle className="w-3.5 h-3.5 text-brand-purple" /> Targeted Improvement Focus
-                    </h5>
-                    <div className="space-y-2 text-xs">
-                      <div className="flex items-center justify-between text-slate-600">
-                        <span>Data Interpretation</span>
-                        <span className="font-bold text-rose-500">62% (Needs work)</span>
-                      </div>
-                      <div className="flex items-center justify-between text-slate-600">
-                        <span>Dynamic Programming</span>
-                        <span className="font-bold text-amber-600">71% (Moderate)</span>
-                      </div>
-                      <div className="flex items-center justify-between text-slate-600">
-                        <span>Quantitative Aptitude</span>
-                        <span className="font-bold text-emerald-600">94% (Strong)</span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setSelectedOption(null);
-                        setQuestionModalOpen(true);
-                      }}
-                      className="w-full mt-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition-colors cursor-pointer"
-                    >
-                      Practice 10 Diagnostic Questions
-                    </button>
-                  </div>
-
-                </div>
-              </div>
-            )}
-
-            {/* ================= TAB 2: PRACTICE HUB PREVIEW ================= */}
-            {activeTab === "aptitude" && (
-              <div>
-                <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                    <div>
-                      <h4 className="text-base font-bold text-slate-900">
-                        Practice Hub — 1,000+ Curated Placement MCQs
-                      </h4>
-                      <p className="text-xs text-slate-500 mt-1">
-                        Structured syllabus covering Quantitative, Logical Reasoning, Verbal, and Core CS with detailed solutions.
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setSelectedOption(null);
-                        setQuestionModalOpen(true);
-                      }}
-                      className="bg-brand-purple hover:bg-brand-deep text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
-                    >
-                      Try a Live Sample Problem
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Module 1 */}
-                    <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                      <div className="text-2xl mb-2">🔢</div>
-                      <h5 className="font-bold text-sm text-slate-900">Quantitative Aptitude</h5>
-                      <p className="text-xs text-slate-500 mt-1 mb-3">
-                        Time & Work, Percentages, Profit & Loss, Speed & Distance, Probability, Permutations.
-                      </p>
-                      <div className="flex items-center justify-between text-xs text-slate-400 border-t pt-2">
-                        <span>Detailed Solutions</span>
-                        <span className="text-emerald-600 font-bold">100 Free MCQs</span>
-                      </div>
-                    </div>
-
-                    {/* Module 2 */}
-                    <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                      <div className="text-2xl mb-2">🧩</div>
-                      <h5 className="font-bold text-sm text-slate-900">Logical & Critical Reasoning</h5>
-                      <p className="text-xs text-slate-500 mt-1 mb-3">
-                        Syllogisms, Blood Relations, Seating Arrangements, Coding-Decoding, Data Sufficiency.
-                      </p>
-                      <div className="flex items-center justify-between text-xs text-slate-400 border-t pt-2">
-                        <span>Step-by-step logic</span>
-                        <span className="text-emerald-600 font-bold">Free access</span>
-                      </div>
-                    </div>
-
-                    {/* Module 3 */}
-                    <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                      <div className="text-2xl mb-2">💻</div>
-                      <h5 className="font-bold text-sm text-slate-900">Core CS Fundamentals</h5>
-                      <p className="text-xs text-slate-500 mt-1 mb-3">
-                        Operating Systems, DBMS, SQL Queries, Computer Networks, OOP Principles.
-                      </p>
-                      <div className="flex items-center justify-between text-xs text-slate-400 border-t pt-2">
-                        <span>MCQs & Viva Questions</span>
-                        <span className="text-brand-purple font-bold">Included</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ================= TAB 3: CODING ARENA PREVIEW ================= */}
-            {activeTab === "coding" && (
-              <div>
-                <div className="bg-slate-900 text-slate-100 p-6 rounded-2xl border border-slate-800">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800 mb-4">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="bg-amber-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded">
-                          MEDIUM
-                        </span>
-                        <h4 className="font-bold text-sm text-white">
-                          Problem: Longest Substring Without Repeating Characters
-                        </h4>
-                      </div>
-                      <p className="text-xs text-slate-400 mt-1">
-                        Frequently asked in technical interview coding rounds.
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <select
-                        value={codeLanguage}
-                        onChange={(e) => setCodeLanguage(e.target.value)}
-                        className="bg-slate-800 text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-slate-700 focus:outline-none cursor-pointer"
-                      >
-                        <option>Python 3.11</option>
-                        <option>C++ 20</option>
-                        <option>Java 17</option>
-                        <option>JavaScript (ES6)</option>
-                      </select>
-                      <button
-                        onClick={handleRunCode}
-                        className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer"
-                      >
-                        <Play className="w-3.5 h-3.5 fill-current" /> Run Code
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Code snippet display */}
-                  <pre className="bg-slate-950 p-4 rounded-xl text-xs font-mono text-emerald-400 overflow-x-auto border border-slate-800 leading-relaxed">
-                    <code>{codeSnippets[codeLanguage]}</code>
-                  </pre>
-
-                  <div className="mt-4 p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    {codeRunState === "running" ? (
-                      <span className="text-amber-400 font-mono flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-                        Compiling with Judge0 execution sandbox...
-                      </span>
-                    ) : codeRunState === "success" ? (
-                      <span className="text-slate-400">
-                        Status:{" "}
-                        <strong className="text-emerald-400 font-mono">
-                          Testcases Passed (3/3) • Runtime: 42ms • Sub-second Execution
-                        </strong>
-                      </span>
-                    ) : (
-                      <span className="text-slate-400">
-                        Status:{" "}
-                        <strong className="text-slate-300 font-mono">Ready to compile & test</strong>
-                      </span>
-                    )}
-                    <span className="text-[11px] text-slate-500">
-                      Supports C++, Python, Java & JavaScript
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ================= TAB 4: TIMED ASSESSMENTS PREVIEW ================= */}
-            {activeTab === "assessments" && (
-              <div>
-                <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                  <h4 className="text-base font-bold text-slate-900 mb-1">
-                    Company-Specific Placement Mock Tests
-                  </h4>
-                  <p className="text-xs text-slate-500 mb-6">
-                    Real test patterns timed to replicate actual recruitment drive conditions.
-                  </p>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-white p-4 rounded-2xl border border-slate-200 hover:shadow-md transition-shadow">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="font-extrabold text-sm text-slate-800">TCS NQT Full Mock</span>
-                        <span className="text-[10px] font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
-                          65 Mins
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-500 mb-4">
-                        Numerical Ability, Reasoning, Verbal, and Hands-on Coding.
-                      </p>
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-400">Active Test</span>
-                        <a
-                          href={`${STUDENT_PORTAL_URL}/register`}
-                          className="text-brand-purple font-bold hover:underline"
-                        >
-                          Start Test &rarr;
-                        </a>
-                      </div>
-                    </div>
-
-                    <div className="bg-white p-4 rounded-2xl border border-slate-200 hover:shadow-md transition-shadow">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="font-extrabold text-sm text-slate-800">Infosys DSE / SP Mock</span>
-                        <span className="text-[10px] font-bold bg-purple-100 text-purple-800 px-2 py-0.5 rounded">
-                          90 Mins
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-500 mb-4">
-                        Advanced Data Structures, Algorithms, Mathematical logic.
-                      </p>
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-400">Active Test</span>
-                        <a
-                          href={`${STUDENT_PORTAL_URL}/register`}
-                          className="text-brand-purple font-bold hover:underline"
-                        >
-                          Start Test &rarr;
-                        </a>
-                      </div>
-                    </div>
-
-                    <div className="bg-white p-4 rounded-2xl border border-slate-200 hover:shadow-md transition-shadow">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="font-extrabold text-sm text-slate-800">Cognizant GenC Mock</span>
-                        <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">
-                          60 Mins
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-500 mb-4">
-                        Aptitude, Domain MCQs, and algorithmic debugging.
-                      </p>
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-400">Active Test</span>
-                        <a
-                          href={`${STUDENT_PORTAL_URL}/register`}
-                          className="text-brand-purple font-bold hover:underline"
-                        >
-                          Start Test &rarr;
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ================= TAB 5: AI MOCK INTERVIEW PREVIEW ================= */}
-            {activeTab === "interview" && (
-              <div>
-                <div className="bg-indigo-900 text-white p-6 rounded-2xl relative overflow-hidden">
-                  <div className="relative z-10 max-w-2xl">
-                    <span className="bg-brand-amber text-brand-dark text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase">
-                      Real-Time Conversational AI
-                    </span>
-                    <h4 className="text-xl font-bold mt-2">
-                      Spoken Mock Interviews with Sarah (Principal AI)
-                    </h4>
-                    <p className="text-xs text-indigo-200 mt-1 mb-4">
-                      Experience real-time voice and text mock interviews tailored to your target role. Get immediate feedback on technical precision, STAR methodology, and communication confidence.
-                    </p>
-                    
-                    <div className="bg-white/10 p-4 rounded-xl border border-white/20 backdrop-blur-md mb-4 text-xs space-y-2">
-                      <p className="font-semibold text-brand-amber">Sarah (Principal AI Interviewer):</p>
-                      <p className="text-slate-100 italic">
-                        "Can you explain the difference between a process and a thread, and describe how deadlocks occur in a multi-threaded application?"
-                      </p>
-                    </div>
-
-                    <button
-                      onClick={() => setInterviewModalOpen(true)}
-                      className="bg-brand-amber hover:bg-brand-amberDark text-brand-dark px-5 py-2.5 rounded-full text-xs font-bold transition-all shadow-glow-amber cursor-pointer"
-                    >
-                      Try 3-Minute Sample Mock Interview
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
 
           </div>
-        </div>
 
-        {/* Soft curved bottom divider into content */}
-        <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none pointer-events-none">
-          <svg
-            className="relative block w-full h-12 sm:h-20"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 1200 120"
-            preserveAspectRatio="none"
-          >
-            <path d="M0,0 C300,90 900,90 1200,0 L1200,120 L0,120 Z" fill="#F8F9FE"></path>
-          </svg>
         </div>
       </header>
 
-      {/* ================= AUTHENTIC METRICS SECTION ================= */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 -mt-6 sm:-mt-10 relative z-30">
-        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-card-soft border border-slate-100">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-slate-100">
-            <div className="pt-4 md:pt-0">
-              <div className="text-3xl sm:text-4xl font-extrabold text-brand-purple">1,000+</div>
-              <div className="text-xs font-bold text-slate-800 mt-1">Placement MCQs</div>
-              <div className="text-[11px] text-slate-500 mt-0.5">Quantitative, Logical & Core CS</div>
-            </div>
-            <div className="pt-4 md:pt-0">
-              <div className="text-3xl sm:text-4xl font-extrabold text-brand-purple">50+</div>
-              <div className="text-xs font-bold text-slate-800 mt-1">Core DSA Challenges</div>
-              <div className="text-[11px] text-slate-500 mt-0.5">Sub-second code compilation</div>
-            </div>
-            <div className="pt-4 md:pt-0">
-              <div className="text-3xl sm:text-4xl font-extrabold text-brand-purple">Live Audio</div>
-              <div className="text-xs font-bold text-slate-800 mt-1">Spoken AI Mock Interviews</div>
-              <div className="text-[11px] text-slate-500 mt-0.5">Real-time voice dialogue</div>
-            </div>
-            <div className="pt-4 md:pt-0">
-              <div className="text-3xl sm:text-4xl font-extrabold text-brand-purple">ATS Audit</div>
-              <div className="text-xs font-bold text-slate-800 mt-1">Enterprise Resume Scanner</div>
-              <div className="text-[11px] text-slate-500 mt-0.5">Keyword & action verb scoring</div>
-            </div>
+      {/* ================= SECTION 1: ESPORTS BATTLE MODES ================= */}
+      <section id="modes" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-b border-white/5">
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-300 text-xs font-black uppercase tracking-wider mb-4">
+            COMPETITIVE FORMATS
           </div>
-        </div>
-      </section>
-
-      {/* ================= SECTION 1: PRODUCT FEATURES ================= */}
-      <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center max-w-3xl mx-auto mb-14">
-          <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-violet-100 text-brand-purple uppercase tracking-wider mb-3">
-            Comprehensive Preparation
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-            Everything You Need To Master Your Placement Rounds
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight mb-4">
+            Four Battle Modes Engineered for Pure Adrenaline.
           </h2>
-          <p className="text-base text-slate-600 mt-3 leading-relaxed">
-            No need to juggle multiple fragmented tools. FLASH unifies daily aptitude, coding challenges, company-pattern assessments, and spoken interview prep into one seamless flow.
+          <p className="text-slate-400 text-base sm:text-lg">
+            Whether you thrive on sub-second algorithm speed, code compression, or knockout tournaments, Flash Arena has a competitive format built for you.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           
-          {/* Feature 1: Practice Hub */}
-          <div id="practice-hub" className="bg-white rounded-3xl p-7 border border-slate-200/80 hover:border-brand-purple/50 hover:shadow-card-soft transition-all group">
-            <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-brand-purple flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform shadow-sm">
-              📚
+          {/* Mode 1: Speed DSA */}
+          <div className="glass-card rounded-3xl p-6 border border-white/10 hover:border-amber-400/50 transition-all hover:-translate-y-1 group">
+            <div className="w-12 h-12 rounded-2xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 mb-5 group-hover:scale-110 transition-transform">
+              <Timer className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">Practice Hub</h3>
-            <p className="text-sm text-slate-600 leading-relaxed mb-4">
-              Master quantitative aptitude, logical reasoning, verbal ability, and core CS fundamentals with granular, step-by-step topic breakdowns.
+            <div className="text-xs font-black text-amber-400 uppercase tracking-wider mb-1">
+              PRIMARY RANKED
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">1v1 Speed DSA Duels</h3>
+            <p className="text-slate-400 text-sm leading-relaxed mb-4">
+              Dual chess clocks tick down in real time. Solve algorithm problems and hit 100% test case pass before your rival hits submit.
             </p>
-            <ul className="text-xs text-slate-500 space-y-2 mb-6">
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Topic-wise difficulty tiers
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Detailed step-by-step solutions
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Daily curated practice streaks
-              </li>
-            </ul>
-            <button
-              onClick={() => {
-                setActiveTab("aptitude");
-                scrollToSection("interactive-demo");
-              }}
-              className="text-xs font-bold text-brand-purple flex items-center gap-1 group-hover:gap-2 transition-all cursor-pointer"
-            >
-              Explore Practice Hub <ArrowRight className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-2 text-xs font-semibold text-amber-300 font-mono">
+              <Check className="w-3.5 h-3.5 text-amber-400" /> Rated ELO Stakes (+/- 25)
+            </div>
           </div>
 
-          {/* Feature 2: Coding Arena */}
-          <div className="bg-white rounded-3xl p-7 border border-slate-200/80 hover:border-brand-purple/50 hover:shadow-card-soft transition-all group">
-            <div className="w-14 h-14 rounded-2xl bg-amber-50 text-brand-amberDark flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform shadow-sm">
-              💻
+          {/* Mode 2: Code Golf */}
+          <div className="glass-card rounded-3xl p-6 border border-white/10 hover:border-indigo-400/50 transition-all hover:-translate-y-1 group">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-400/30 flex items-center justify-center text-indigo-400 mb-5 group-hover:scale-110 transition-transform">
+              <Code2 className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">Coding Arena</h3>
-            <p className="text-sm text-slate-600 leading-relaxed mb-4">
-              Solve core Data Structures & Algorithms problems. Run your code in C++, Python, Java, or JavaScript with sub-second execution and instant testcase feedback.
+            <div className="text-xs font-black text-indigo-400 uppercase tracking-wider mb-1">
+              BYTE OPTIMIZATION
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Code Golf Battles</h3>
+            <p className="text-slate-400 text-sm leading-relaxed mb-4">
+              Correctness is merely table stakes. Optimize your code down to the absolute shortest byte footprint to conquer the leaderboard.
             </p>
-            <ul className="text-xs text-slate-500 space-y-2 mb-6">
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Multi-language support (C++, Python, Java, JS)
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Instant testcase and edge-case evaluation
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Placement-focused problem catalog
-              </li>
-            </ul>
-            <button
-              onClick={() => {
-                setActiveTab("coding");
-                scrollToSection("interactive-demo");
-              }}
-              className="text-xs font-bold text-brand-purple flex items-center gap-1 group-hover:gap-2 transition-all cursor-pointer"
-            >
-              Try Coding Arena <ArrowRight className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-2 text-xs font-semibold text-indigo-300 font-mono">
+              <Check className="w-3.5 h-3.5 text-indigo-400" /> Byte-Count Telemetry
+            </div>
           </div>
 
-          {/* Feature 3: Timed Mock Assessments */}
-          <div className="bg-white rounded-3xl p-7 border border-slate-200/80 hover:border-brand-purple/50 hover:shadow-card-soft transition-all group">
-            <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform shadow-sm">
-              ⏱️
+          {/* Mode 3: Sudden Death & AI Rival */}
+          <div className="glass-card rounded-3xl p-6 border border-white/10 hover:border-rose-400/50 transition-all hover:-translate-y-1 group">
+            <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-400/30 flex items-center justify-center text-rose-400 mb-5 group-hover:scale-110 transition-transform">
+              <Bot className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">Timed Mock Assessments</h3>
-            <p className="text-sm text-slate-600 leading-relaxed mb-4">
-              Replicate the actual exam pressure of hiring drives with section-timed mock tests matching company patterns.
+            <div className="text-xs font-black text-rose-400 uppercase tracking-wider mb-1">
+              SOLO & TRAINING
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Sudden Death & AI Rivals</h3>
+            <p className="text-slate-400 text-sm leading-relaxed mb-4">
+              Single wrong submission triggers immediate defeat. Warm up against synthetic AI grandmasters trained on top competitive programming profiles.
             </p>
-            <ul className="text-xs text-slate-500 space-y-2 mb-6">
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Company-accurate timing & section switching
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Automated score breakdown and ranking
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Detailed answer keys and explanations
-              </li>
-            </ul>
-            <button
-              onClick={() => {
-                setActiveTab("assessments");
-                scrollToSection("interactive-demo");
-              }}
-              className="text-xs font-bold text-brand-purple flex items-center gap-1 group-hover:gap-2 transition-all cursor-pointer"
-            >
-              View Mock Tests <ArrowRight className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-2 text-xs font-semibold text-rose-300 font-mono">
+              <Check className="w-3.5 h-3.5 text-rose-400" /> Instant Match Generation
+            </div>
           </div>
 
-          {/* Feature 4: Spoken AI Mock Interviews */}
-          <div className="bg-white rounded-3xl p-7 border border-slate-200/80 hover:border-brand-purple/50 hover:shadow-card-soft transition-all group">
-            <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform shadow-sm">
-              🎙️
+          {/* Mode 4: Rematch Handshake */}
+          <div className="glass-card rounded-3xl p-6 border border-white/10 hover:border-emerald-400/50 transition-all hover:-translate-y-1 group">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-400/30 flex items-center justify-center text-emerald-400 mb-5 group-hover:scale-110 transition-transform">
+              <RotateCcw className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">Spoken AI Mock Interviews</h3>
-            <p className="text-sm text-slate-600 leading-relaxed mb-4">
-              Conduct real-time voice conversations with Sarah (Principal AI). Practice technical DSA viva, core CS subjects, system design, and behavioral STAR interviews.
+            <div className="text-xs font-black text-emerald-400 uppercase tracking-wider mb-1">
+              RIVALRY PROTOCOL
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Two-Way Rematch Handshake</h3>
+            <p className="text-slate-400 text-sm leading-relaxed mb-4">
+              Settle the rivalry on the spot. Mutual consent rematch triggers immediate room reset with a fresh problem, or safe return to lobby.
             </p>
-            <ul className="text-xs text-slate-500 space-y-2 mb-6">
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Natural real-time spoken audio dialogue
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> STAR method feedback for HR rounds
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Instant constructive feedback & tips
-              </li>
-            </ul>
-            <button
-              onClick={() => setInterviewModalOpen(true)}
-              className="text-xs font-bold text-brand-purple flex items-center gap-1 group-hover:gap-2 transition-all cursor-pointer"
-            >
-              Launch Spoken Interview Simulator <ArrowRight className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-2 text-xs font-semibold text-emerald-300 font-mono">
+              <Check className="w-3.5 h-3.5 text-emerald-400" /> Zero Lag Room Swapping
+            </div>
           </div>
 
-          {/* Feature 5: Smart Resume Scanner */}
-          <div className="bg-white rounded-3xl p-7 border border-slate-200/80 hover:border-brand-purple/50 hover:shadow-card-soft transition-all group">
-            <div className="w-14 h-14 rounded-2xl bg-cyan-50 text-cyan-600 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform shadow-sm">
-              📄
+        </div>
+      </section>
+
+      {/* ================= SECTION 2: INTERACTIVE BATTLE CHAMBER SIMULATOR ================= */}
+      <section id="battle-chamber" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-b border-white/5">
+        <div className="max-w-4xl mx-auto text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/30 text-indigo-300 text-xs font-black uppercase tracking-wider mb-4">
+            LIVE SIMULATOR
+          </div>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight mb-4">
+            Test Your Speed in the Interactive Code Sandbox.
+          </h2>
+          <p className="text-slate-400 text-base sm:text-lg">
+            Experience sub-second compiler execution across Python, C++, Java, and JavaScript before you step into live ranked queues.
+          </p>
+        </div>
+
+        {/* Interactive Editor Container */}
+        <div className="max-w-4xl mx-auto glass-card rounded-3xl border border-white/15 overflow-hidden shadow-2xl">
+          
+          {/* Editor Header */}
+          <div className="bg-[#151422] px-5 py-3 border-b border-white/10 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Terminal className="w-4 h-4 text-amber-400" />
+              <span className="text-sm font-bold text-white">Problem: Two Sum (Hash Map Optimization)</span>
+              <span className="px-2 py-0.5 rounded text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                EASY
+              </span>
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">Resume ATS Optimizer</h3>
-            <p className="text-sm text-slate-600 leading-relaxed mb-4">
-              Scan your resume against enterprise applicant tracking standards. Find missing technical keywords, quantify action verbs, and improve shortlisting rates.
-            </p>
-            <ul className="text-xs text-slate-500 space-y-2 mb-6">
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Tech industry keyword matching
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Action verb & impact phrase review
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Formatted ATS readability score
-              </li>
-            </ul>
-            <button
-              onClick={() => {
-                setResumeScanOpen(false);
-                setResumeModalOpen(true);
-              }}
-              className="text-xs font-bold text-brand-purple flex items-center gap-1 group-hover:gap-2 transition-all cursor-pointer"
-            >
-              Check Resume Score <ArrowRight className="w-4 h-4" />
-            </button>
+
+            {/* Language Switcher */}
+            <div className="flex items-center gap-1.5 bg-[#0A0912] p-1 rounded-xl border border-white/10">
+              {Object.keys(codeSnippets).map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => {
+                    setCodeLanguage(lang);
+                    setCodeRunState("idle");
+                  }}
+                  className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                    codeLanguage === lang
+                      ? "bg-amber-400 text-slate-950 font-bold shadow-xs"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  {lang}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Feature 6: Contests & Challenges */}
-          <div className="bg-white rounded-3xl p-7 border border-slate-200/80 hover:border-brand-purple/50 hover:shadow-card-soft transition-all group">
-            <div className="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform shadow-sm">
-              🏆
+          {/* Code Body */}
+          <div className="p-6 bg-[#0B0A14] font-mono text-xs sm:text-sm text-slate-200 overflow-x-auto min-h-[220px]">
+            <pre className="leading-relaxed">
+              <code>{codeSnippets[codeLanguage]}</code>
+            </pre>
+          </div>
+
+          {/* Execution Bar */}
+          <div className="bg-[#141320] px-6 py-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-4 text-xs font-mono">
+              <span className="text-slate-400">Target Time Limit: &lt; 1000ms</span>
+              <span className="text-slate-600 hidden sm:inline">•</span>
+              <span className="text-slate-400">Memory Limit: 256MB</span>
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">Coding Contests & XP</h3>
-            <p className="text-sm text-slate-600 leading-relaxed mb-4">
-              Participate in regular and premium coding contests. Benchmark your problem-solving speed and accuracy while building your streak and XP.
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleRunCode}
+                disabled={codeRunState === "running"}
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white px-6 py-2.5 rounded-full text-xs sm:text-sm font-black shadow-glow-purple transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+              >
+                {codeRunState === "running" ? (
+                  <>
+                    <Zap className="w-4 h-4 animate-spin text-amber-400" />
+                    <span>Compiling in Sandbox...</span>
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4 fill-white" />
+                    <span>Run & Verify Test Suites</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Results Output (Simulated) */}
+          {codeRunState === "success" && (
+            <div className="bg-[#0D1512] px-6 py-4 border-t border-emerald-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2 text-emerald-300 font-semibold">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>3/3 Test Cases Accepted (Runtime: 38ms • Beats 94.2% of submissions)</span>
+              </div>
+              <a
+                href={ARENA_PORTAL_URL}
+                className="text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1 cursor-pointer"
+              >
+                Challenge Live Opponent in Arena <ArrowRight className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          )}
+
+        </div>
+      </section>
+
+      {/* ================= SECTION 3: GLADIATOR ELO HIERARCHY & VANITY PORTFOLIO ================= */}
+      <section id="tiers" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-b border-white/5">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          
+          {/* Left Column: ELO Tiers Overview */}
+          <div className="lg:col-span-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-300 text-xs font-black uppercase tracking-wider mb-4">
+              RANKED HIERARCHY
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-4">
+              Six Competitive Tiers. One Permanent Esports Profile.
+            </h2>
+            <p className="text-slate-400 text-base leading-relaxed mb-8">
+              Every match updates your official rating according to FIDE-standard ELO formulas calibrated for speed and accuracy. Your achievements live forever on your canonical vanity profile URL.
             </p>
-            <ul className="text-xs text-slate-500 space-y-2 mb-6">
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Live contest leaderboards
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Practice XP and milestone badges
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Detailed solution write-ups
-              </li>
-            </ul>
+
+            {/* Tiers List */}
+            <div className="space-y-3">
+              
+              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[#121217] border border-white/10 hover:border-amber-400/40 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-amber-400/20 text-amber-400 font-black text-xs flex items-center justify-center">
+                    VI
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-white flex items-center gap-2">
+                      Grand Champion <Crown className="w-3.5 h-3.5 text-amber-400" />
+                    </div>
+                    <div className="text-[11px] text-slate-400">Top 0.5% of Competitive Programmers</div>
+                  </div>
+                </div>
+                <div className="text-xs font-mono font-bold text-amber-400">2200+ ELO</div>
+              </div>
+
+              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[#121217] border border-white/10 hover:border-indigo-400/40 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 font-black text-xs flex items-center justify-center">
+                    V
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-white">Diamond Gladiator</div>
+                    <div className="text-[11px] text-slate-400">Advanced DSA & Algorithmic Optimization</div>
+                  </div>
+                </div>
+                <div className="text-xs font-mono font-bold text-indigo-300">1900 - 2199 ELO</div>
+              </div>
+
+              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[#121217] border border-white/10 hover:border-indigo-400/40 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-yellow-500/20 text-yellow-400 font-black text-xs flex items-center justify-center">
+                    IV
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-white">Gold Gladiator</div>
+                    <div className="text-[11px] text-slate-400">Consistent Problem Solving Under Pressure</div>
+                  </div>
+                </div>
+                <div className="text-xs font-mono font-bold text-yellow-300">1600 - 1899 ELO</div>
+              </div>
+
+              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[#121217] border border-white/10 hover:border-indigo-400/40 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-slate-500/20 text-slate-300 font-black text-xs flex items-center justify-center">
+                    I-III
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-white">Silver, Bronze & Recruit</div>
+                    <div className="text-[11px] text-slate-400">Foundations, Syntax Mastery, and Speed Building</div>
+                  </div>
+                </div>
+                <div className="text-xs font-mono font-bold text-slate-400">0 - 1599 ELO</div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Right Column: Vanity Profile Mockup Card */}
+          <div className="lg:col-span-6">
+            <div className="glass-card rounded-3xl p-6 sm:p-8 border border-white/15 relative overflow-hidden shadow-2xl">
+              
+              <div className="flex items-center justify-between mb-6">
+                <div className="text-xs font-mono text-slate-400 flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                  flashedu.in/u/harshsage
+                </div>
+                <span className="px-2.5 py-1 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase tracking-wider">
+                  CANONICAL PROFILE
+                </span>
+              </div>
+
+              {/* Profile Header */}
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-400 to-indigo-600 p-0.5 shadow-glow-amber">
+                  <div className="w-full h-full rounded-2xl bg-slate-950 flex items-center justify-center text-xl font-black text-white">
+                    HS
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-white flex items-center gap-2">
+                    Harshwardhan
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  </h3>
+                  <div className="text-xs text-indigo-300 font-mono">@harshsage • Senior Competitor</div>
+                </div>
+              </div>
+
+              {/* Combat Card Telemetry */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                <div className="bg-[#0C0B14] rounded-2xl p-3 border border-white/10 text-center">
+                  <div className="text-[10px] font-bold text-slate-400 uppercase">ELO Rating</div>
+                  <div className="text-xl font-black text-amber-400 font-mono">1840</div>
+                  <div className="text-[9px] text-amber-300/80">Tier IV Gold</div>
+                </div>
+                <div className="bg-[#0C0B14] rounded-2xl p-3 border border-white/10 text-center">
+                  <div className="text-[10px] font-bold text-slate-400 uppercase">Win Rate</div>
+                  <div className="text-xl font-black text-emerald-400 font-mono">68.4%</div>
+                  <div className="text-[9px] text-emerald-300/80">97W - 45L</div>
+                </div>
+                <div className="bg-[#0C0B14] rounded-2xl p-3 border border-white/10 text-center">
+                  <div className="text-[10px] font-bold text-slate-400 uppercase">1v1 Duels</div>
+                  <div className="text-xl font-black text-indigo-300 font-mono">142</div>
+                  <div className="text-[9px] text-indigo-300/80">Ranked Matches</div>
+                </div>
+                <div className="bg-[#0C0B14] rounded-2xl p-3 border border-white/10 text-center">
+                  <div className="text-[10px] font-bold text-slate-400 uppercase">Contest Medals</div>
+                  <div className="text-xl font-black text-amber-300 font-mono">12</div>
+                  <div className="text-[9px] text-amber-300/80">Top 3 Finishes</div>
+                </div>
+              </div>
+
+              {/* Action Banner */}
+              <div className="bg-[#12111F] rounded-2xl p-4 border border-indigo-500/20 flex items-center justify-between gap-4">
+                <div>
+                  <div className="text-xs font-bold text-white">Share Your Combat Card</div>
+                  <div className="text-[11px] text-slate-400">Put your verified battle stats on your resume & LinkedIn.</div>
+                </div>
+                <a
+                  href={`${ARENA_PORTAL_URL}`}
+                  className="bg-amber-400 hover:bg-amber-300 text-slate-950 px-4 py-2 rounded-xl text-xs font-black shadow-glow-amber transition-all cursor-pointer whitespace-nowrap"
+                >
+                  Claim Handle
+                </a>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ================= SECTION 4: CAMPUS TOURNAMENT STUDIO ================= */}
+      <section id="tournaments" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-b border-white/5">
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-400/10 border border-cyan-400/30 text-cyan-300 text-xs font-black uppercase tracking-wider mb-4">
+            CAMPUS TOURNAMENTS
+          </div>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight mb-4">
+            Powering Inter-College Hackathons & Live Esports Arenas.
+          </h2>
+          <p className="text-slate-400 text-base sm:text-lg">
+            Host high-stakes coding tournaments on campus with automated knockout brackets, anti-cheat surveillance, and auditorium projector displays.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          
+          <div className="glass-card rounded-3xl p-7 border border-white/10 hover:border-cyan-400/40 transition-all">
+            <div className="w-12 h-12 rounded-2xl bg-cyan-400/10 border border-cyan-400/30 flex items-center justify-center text-cyan-400 mb-5">
+              <Users className="w-6 h-6" />
+            </div>
+            <div className="text-xs font-black text-cyan-400 uppercase tracking-wider mb-1">
+              ROUND 1: FILTERING
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Massive Screening Round</h3>
+            <p className="text-slate-400 text-sm leading-relaxed mb-4">
+              Evaluate 1,000+ candidates simultaneously across timed MCQ screening, CS fundamentals, and aptitude with instant automated scoring.
+            </p>
+            <div className="text-xs text-slate-300 font-mono">
+              Auto-ranks top 16 / top 32 finalists.
+            </div>
+          </div>
+
+          <div className="glass-card rounded-3xl p-7 border border-white/10 hover:border-amber-400/40 transition-all">
+            <div className="w-12 h-12 rounded-2xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 mb-5">
+              <Trophy className="w-6 h-6" />
+            </div>
+            <div className="text-xs font-black text-amber-400 uppercase tracking-wider mb-1">
+              ROUND 2: KNOCKOUT
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">1v1 Knockout Bracket</h3>
+            <p className="text-slate-400 text-sm leading-relaxed mb-4">
+              Quarterfinals, Semifinals, and Finals play out live on stage. Coders battle head-to-head on matching problem sets with live test metrics.
+            </p>
+            <div className="text-xs text-slate-300 font-mono">
+              Double-elimination or sudden death.
+            </div>
+          </div>
+
+          <div className="glass-card rounded-3xl p-7 border border-white/10 hover:border-indigo-400/40 transition-all">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-400/30 flex items-center justify-center text-indigo-400 mb-5">
+              <Sparkles className="w-6 h-6" />
+            </div>
+            <div className="text-xs font-black text-indigo-400 uppercase tracking-wider mb-1">
+              AUDITORIUM SPECTATOR
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Live Projector Stream</h3>
+            <p className="text-slate-400 text-sm leading-relaxed mb-4">
+              Project real-time typing diffs, animated test case verifications, and crowd-cheering sound effects directly onto auditorium projector screens.
+            </p>
+            <div className="text-xs text-slate-300 font-mono">
+              Zero lag spectator feed for hosts.
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ================= SECTION 5: STUDENT CAREER SUITE TEASER (30% FOCUS - COMING SOON) ================= */}
+      <section id="career-suite" className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-b border-white/5 relative">
+        
+        {/* Glow backdrop */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-indigo-600/10 blur-[120px] rounded-full pointer-events-none"></div>
+
+        <div className="relative z-10">
+          
+          {/* Header */}
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-950/80 border border-indigo-700/60 text-indigo-300 text-xs font-black uppercase tracking-wider mb-4 shadow-sm">
+              <Lock className="w-3.5 h-3.5 text-amber-400" />
+              <span>FLASH CAREER SUITE • COMING SOON</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight mb-4">
+              Next-Generation Placement Intelligence.
+            </h2>
+            <p className="text-slate-400 text-base sm:text-lg leading-relaxed">
+              While you sharpen your speed and climb the Arena ladder, our placement engine is being prepared for prime time. Experience complete career readiness when it launches.
+            </p>
+          </div>
+
+          {/* Three Placement Features */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+            
+            {/* Feature 1: Spoken Mock Interviews */}
+            <div className="glass-card rounded-3xl p-7 border border-white/10 hover:border-indigo-500/40 transition-all flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-400/30 flex items-center justify-center text-indigo-400 mb-5">
+                  <Mic className="w-6 h-6" />
+                </div>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-xl font-bold text-white">AI Spoken Mock Interviews</h3>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-950 text-indigo-300 border border-indigo-700/60">
+                    Preview
+                  </span>
+                </div>
+                <p className="text-slate-400 text-sm leading-relaxed mb-6">
+                  Interactive voice agent conducting real-time technical and HR behavioral interviews. Evaluates your spoken communication, problem explanation, and edge case thinking.
+                </p>
+                <div className="bg-[#09090D] p-3 rounded-xl border border-white/10 text-xs font-mono text-slate-300 mb-4">
+                  <div className="text-indigo-400 font-bold mb-1">// Real-time Rubric Evaluation</div>
+                  <div className="text-slate-400">• Approach Clarity: 88/100</div>
+                  <div className="text-slate-400">• Time Complexity Analysis: 92/100</div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => handleCareerSuiteClick("AI Spoken Mock Interviews")}
+                className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Lock className="w-3.5 h-3.5 text-amber-400" />
+                <span>Feature Launching Soon</span>
+              </button>
+            </div>
+
+            {/* Feature 2: ATS Resume Scanner */}
+            <div className="glass-card rounded-3xl p-7 border border-white/10 hover:border-indigo-500/40 transition-all flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-400/30 flex items-center justify-center text-indigo-400 mb-5">
+                  <FileCheck2 className="w-6 h-6" />
+                </div>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-xl font-bold text-white">ATS Resume Optimizer</h3>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-950 text-indigo-300 border border-indigo-700/60">
+                    Preview
+                  </span>
+                </div>
+                <p className="text-slate-400 text-sm leading-relaxed mb-6">
+                  Parse and benchmark your resume against real Tier-1 job descriptions from Google, Microsoft, and Amazon. Detect missing keywords and formatting red flags.
+                </p>
+                <div className="bg-[#09090D] p-3 rounded-xl border border-white/10 text-xs font-mono text-slate-300 mb-4">
+                  <div className="text-emerald-400 font-bold mb-1">// ATS Score: 87/100</div>
+                  <div className="text-slate-400">• High Match: DSA, Distributed Systems</div>
+                  <div className="text-amber-400">• Recommended: Add CI/CD projects</div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => handleCareerSuiteClick("ATS Resume Optimizer")}
+                className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Lock className="w-3.5 h-3.5 text-amber-400" />
+                <span>Feature Launching Soon</span>
+              </button>
+            </div>
+
+            {/* Feature 3: Readiness Radar Chart */}
+            <div className="glass-card rounded-3xl p-7 border border-white/10 hover:border-indigo-500/40 transition-all flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-400/30 flex items-center justify-center text-indigo-400 mb-5">
+                  <Target className="w-6 h-6" />
+                </div>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-xl font-bold text-white">Readiness Radar</h3>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-950 text-indigo-300 border border-indigo-700/60">
+                    Telemetry
+                  </span>
+                </div>
+                <p className="text-slate-400 text-sm leading-relaxed mb-4">
+                  Multi-axial capability decomposition across Quantitative, Logical, Verbal, DSA, Core CS, and Assessment Speed.
+                </p>
+                {/* Embedded Dark Theme Radar Chart */}
+                <div className="bg-[#09090D] p-3 rounded-2xl border border-white/10 flex items-center justify-center mb-4">
+                  <ReadinessRadarChart dark={true} />
+                </div>
+              </div>
+
+              <button
+                onClick={() => handleCareerSuiteClick("Placement Readiness Radar")}
+                className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Lock className="w-3.5 h-3.5 text-amber-400" />
+                <span>Feature Launching Soon</span>
+              </button>
+            </div>
+
+          </div>
+
+          {/* Career Suite Announcement Box */}
+          <div className="max-w-3xl mx-auto rounded-2xl bg-[#12111D] border border-indigo-500/30 p-6 text-center">
+            <h4 className="text-base font-bold text-white mb-2">
+              Want priority day-one access to the Flash Career Suite?
+            </h4>
+            <p className="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4">
+              All active Flash Arena competitors and Gladiator Pro subscribers receive instant priority onboarding the moment the Career Suite opens.
+            </p>
             <a
-              href={`${STUDENT_PORTAL_URL}/register`}
-              className="text-xs font-bold text-brand-purple flex items-center gap-1 group-hover:gap-2 transition-all cursor-pointer"
+              href={ARENA_PORTAL_URL}
+              className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold shadow-glow-purple transition-all cursor-pointer"
             >
-              Join Next Contest <ArrowRight className="w-4 h-4" />
+              <span>Build Your Arena Ranking Now</span>
+              <ArrowRight className="w-4 h-4" />
             </a>
           </div>
 
         </div>
       </section>
 
-      {/* ================= SECTION 2: DEMONSTRATE PROGRESS (Readiness Tracker) ================= */}
-      <section id="readiness" className="bg-white py-20 border-y border-slate-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            
-            {/* Left: Explanation */}
-            <div className="lg:col-span-5 space-y-6">
-              <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 uppercase tracking-wider">
-                Measurable Placement Readiness
+      {/* ================= SECTION 6: PRICING PLANS ================= */}
+      <section id="pricing" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-b border-white/5">
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-300 text-xs font-black uppercase tracking-wider mb-4">
+            MEMBERSHIP TIERS
+          </div>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight mb-4">
+            Transparent Pricing for High Achievers.
+          </h2>
+          <p className="text-slate-400 text-base sm:text-lg mb-8">
+            Start competing free today. Upgrade when you need unlimited ranked battles and official tournament entry.
+          </p>
+
+          {/* Billing Interval Toggle */}
+          <div className="inline-flex items-center p-1 rounded-full bg-[#141320] border border-white/10">
+            <button
+              onClick={() => setIsYearly(false)}
+              className={`px-5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                !isYearly ? "bg-amber-400 text-slate-950 shadow-xs" : "text-slate-400 hover:text-white"
+              }`}
+            >
+              Monthly Billing
+            </button>
+            <button
+              onClick={() => setIsYearly(true)}
+              className={`px-5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                isYearly ? "bg-amber-400 text-slate-950 shadow-xs" : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <span>Annual Billing</span>
+              <span className="px-2 py-0.2 rounded-full bg-indigo-600 text-white text-[9px] font-black uppercase">
+                Save 37%
               </span>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                Know Exactly Where You Stand Before Your First Interview
-              </h2>
-              <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-                Practice is only half the battle. FLASH turns every question and mock test into actionable insights — pinpointing weak topics so you never enter a placement test guessing.
+            </button>
+          </div>
+        </div>
+
+        {/* Pricing Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto items-stretch">
+          
+          {/* Card 1: Gladiator Starter */}
+          <div className="glass-card rounded-3xl p-8 border border-white/10 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-xs font-black uppercase tracking-wider text-slate-400">
+                  FREE TIER
+                </span>
+                <span className="px-3 py-1 rounded-full bg-white/10 text-slate-300 text-xs font-bold">
+                  Free Forever
+                </span>
+              </div>
+              <h3 className="text-2xl font-black text-white mb-2">Gladiator Starter</h3>
+              <p className="text-slate-400 text-sm mb-6">
+                Everything you need to sharpen your algorithms and face real opponents.
               </p>
 
-              <div className="space-y-4 pt-2">
-                <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-xl bg-violet-100 text-brand-purple flex items-center justify-center font-bold flex-shrink-0">
-                    1
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900">Topic-by-Topic Accuracy Tracking</h4>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      See precise hit-rates across Quantitative, Logical, Verbal, and Core CS domains.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-xl bg-violet-100 text-brand-purple flex items-center justify-center font-bold flex-shrink-0">
-                    2
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900">Placement Readiness Score (0 - 100)</h4>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      A weighted composite score calculated against real technical hiring cutoffs.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-xl bg-violet-100 text-brand-purple flex items-center justify-center font-bold flex-shrink-0">
-                    3
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900">Personalized Practice Roadmaps</h4>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      The platform recommends daily high-yield questions to plug your specific score leaks.
-                    </p>
-                  </div>
-                </div>
+              <div className="flex items-baseline gap-1 mb-8">
+                <span className="text-4xl sm:text-5xl font-black text-white">₹0</span>
+                <span className="text-slate-400 text-sm">/ forever</span>
               </div>
 
-              <div className="pt-4">
-                <a
-                  href={`${STUDENT_PORTAL_URL}/register`}
-                  className="inline-block bg-brand-purple hover:bg-brand-deep text-white px-7 py-3 rounded-full text-sm font-bold shadow-glow-purple transition-all cursor-pointer"
-                >
-                  Calculate Your Placement Readiness Score
-                </a>
+              <div className="space-y-3.5 mb-8 text-sm text-slate-300">
+                <div className="flex items-center gap-3">
+                  <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                  <span>Unlimited Unrated 1v1 Practice Duels</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                  <span>5 Ranked Competitive Matches per day</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                  <span>50 Core DSA Problem Sandbox access</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                  <span>Public Vanity Profile (flashedu.in/u/*)</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                  <span>Discord Community & Leaderboard</span>
+                </div>
               </div>
             </div>
 
-            {/* Right: Interactive Readiness Radar & Breakdown Card */}
-            <div className="lg:col-span-7">
-              <div className="bg-brand-surface rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-card-soft">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-200 gap-2">
-                  <div>
-                    <h4 className="font-bold text-slate-900 text-base">Comprehensive Skill Diagnostic</h4>
-                    <span className="text-xs text-slate-500">Benchmark against recruitment round cutoffs</span>
-                  </div>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 self-start sm:self-auto">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span> 84/100 Readiness
-                  </span>
-                </div>
-
-                {/* Radar / Skill Distribution */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 my-6 items-center">
-                  <div className="relative h-60 w-full flex items-center justify-center">
-                    <ReadinessRadarChart />
-                  </div>
-
-                  {/* Metrics breakdown */}
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between text-xs font-semibold mb-1">
-                        <span className="text-slate-700">DSA & Problem Solving</span>
-                        <span className="text-brand-purple font-bold">88%</span>
-                      </div>
-                      <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                        <div className="bg-brand-purple h-full rounded-full" style={{ width: "88%" }}></div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="flex justify-between text-xs font-semibold mb-1">
-                        <span className="text-slate-700">Quantitative Aptitude</span>
-                        <span className="text-brand-purple font-bold">92%</span>
-                      </div>
-                      <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                        <div className="bg-brand-purple h-full rounded-full" style={{ width: "92%" }}></div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="flex justify-between text-xs font-semibold mb-1">
-                        <span className="text-slate-700">Interview Communication</span>
-                        <span className="text-amber-600 font-bold">78%</span>
-                      </div>
-                      <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                        <div className="bg-amber-500 h-full rounded-full" style={{ width: "78%" }}></div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="flex justify-between text-xs font-semibold mb-1">
-                        <span className="text-slate-700">Core CS MCQs (OS/DBMS/CN)</span>
-                        <span className="text-emerald-600 font-bold">84%</span>
-                      </div>
-                      <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                        <div className="bg-emerald-500 h-full rounded-full" style={{ width: "84%" }}></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white p-4 rounded-2xl border border-slate-200 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-brand-amber shrink-0" />
-                    <span className="text-slate-700">
-                      Recommendation: Complete 2 Graph Traversal sets to push DSA above 95%.
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setSelectedOption(null);
-                      setQuestionModalOpen(true);
-                    }}
-                    className="text-brand-purple font-bold hover:underline whitespace-nowrap ml-2 cursor-pointer"
-                  >
-                    Practice Set &rarr;
-                  </button>
-                </div>
-
-              </div>
-            </div>
-
+            <a
+              href={ARENA_PORTAL_URL}
+              className="w-full py-3.5 rounded-2xl bg-white/10 hover:bg-white/15 text-white border border-white/15 font-bold text-center text-sm transition-all cursor-pointer block"
+            >
+              Start Free Today
+            </a>
           </div>
 
-        </div>
-      </section>
-
-      {/* ================= SECTION 3: TRUST, PRIVACY & INTEGRITY ================= */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="bg-white rounded-3xl p-8 border border-slate-200/90 shadow-sm max-w-4xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-2xl flex-shrink-0">
-                🔒
-              </div>
-              <div>
-                <h4 className="text-base font-bold text-slate-900">
-                  Zero Data Monetization & Strict Student Privacy
-                </h4>
-                <p className="text-xs text-slate-600 mt-1">
-                  Your resume, interview recordings, and assessment performance are 100% encrypted in-transit (TLS 1.3) and at-rest (AES-256). We never sell your personal contact details or profile to advertisers.
-                </p>
-              </div>
-            </div>
-            <div id="privacy" className="flex-shrink-0">
-              <Link
-                to="/privacy"
-                className="px-5 py-2.5 rounded-full border border-slate-300 hover:border-brand-purple text-slate-700 hover:text-brand-purple text-xs font-bold transition-all inline-block"
-              >
-                View Privacy Policy
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ================= SECTION 4: PLANS & PRICING ================= */}
-      <section id="pricing" className="py-20 relative bg-brand-surface">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <div className="text-center max-w-3xl mx-auto mb-10">
-            <span className="text-xs font-bold text-brand-purple uppercase tracking-wider bg-violet-100 px-3 py-1 rounded-full">
-              Affordable Student Pricing
-            </span>
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-slate-900 mt-3 tracking-tight">
-              Price For All Your Needs
-            </h2>
-            <p className="text-slate-600 text-sm sm:text-base mt-3">
-              Transparent, accessible plans built for students. <strong>All prices are inclusive of all taxes.</strong> Start free or upgrade for unlimited practice and real-time spoken AI mock interviews.
-            </p>
-
-            {/* Monthly / Yearly Billing Toggle */}
-            <div className="flex items-center justify-center gap-4 mt-8">
-              <span className={`text-sm ${!isYearly ? "font-bold text-brand-purple" : "font-semibold text-slate-600"}`}>
-                Monthly
+          {/* Card 2: Gladiator Pro (Featured) */}
+          <div className="glass-card rounded-3xl p-8 border-2 border-amber-400/80 relative flex flex-col justify-between shadow-glow-amber">
+            <div className="absolute -top-3.5 right-8">
+              <span className="px-3.5 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-black uppercase tracking-wider shadow-md">
+                MOST POPULAR
               </span>
-              <button
-                type="button"
-                onClick={() => {
-                  const nextState = !isYearly;
-                  setIsYearly(nextState);
-                  showToast(nextState ? "Yearly plan selected: ₹999/yr & ₹1,999/yr (inclusive of all taxes)" : "Monthly billing selected: ₹99/mo & ₹199/mo (inclusive of all taxes)");
-                }}
-                className={`w-14 h-8 rounded-full p-1 relative transition-colors focus:outline-none cursor-pointer ${
-                  isYearly ? "bg-brand-purple" : "bg-slate-300"
-                }`}
-                aria-label="Toggle billing duration"
-              >
-                <div
-                  className={`w-6 h-6 bg-white rounded-full transition-transform transform shadow-md ${
-                    isYearly ? "translate-x-6" : "translate-x-0"
-                  }`}
-                ></div>
-              </button>
-              <span className={`text-sm flex items-center gap-1.5 ${isYearly ? "font-bold text-brand-purple" : "font-semibold text-slate-600"}`}>
-                Yearly{" "}
-                <span className="bg-emerald-100 text-emerald-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full">
-                  Save ~16%
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-xs font-black uppercase tracking-wider text-amber-400">
+                  FULL PASS
                 </span>
-              </span>
+              </div>
+              <h3 className="text-2xl font-black text-white mb-2">Gladiator Pro</h3>
+              <p className="text-slate-400 text-sm mb-6">
+                Unrestricted competitive arena access and priority career suite onboarding.
+              </p>
+
+              <div className="flex items-baseline gap-1 mb-8">
+                <span className="text-4xl sm:text-5xl font-black text-white">
+                  {isYearly ? "₹1,499" : "₹199"}
+                </span>
+                <span className="text-slate-400 text-sm">
+                  {isYearly ? "/ year" : "/ month"}
+                </span>
+              </div>
+
+              <div className="space-y-3.5 mb-8 text-sm text-slate-200">
+                <div className="flex items-center gap-3">
+                  <Check className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                  <span className="font-semibold text-white">Unlimited Ranked 1v1 Battles & Code Golf</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Check className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                  <span>Anti-Cheat Verified Priority Matchmaking</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Check className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                  <span>Campus & Flagship Tournament Entry Passes</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Check className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                  <span className="text-indigo-200 font-semibold">Priority Access to Flash Career Suite</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Check className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                  <span>Verified Gladiator Crown Badge on Profile</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Check className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                  <span>Detailed Match Telemetry & Mistake Analytics</span>
+                </div>
+              </div>
             </div>
+
+            <a
+              href={`${ARENA_PORTAL_URL}`}
+              className="w-full py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-center text-sm shadow-glow-amber transition-all cursor-pointer block transform hover:scale-[1.02] active:scale-95"
+            >
+              Get Gladiator Pro Pass
+            </a>
           </div>
 
-          {/* Pricing Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto">
-            
-            {/* Tier 1: Starter (₹0) */}
-            <div className="bg-white rounded-3xl p-8 border border-slate-200/90 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-              <div>
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-bold text-slate-900">Starter</h3>
-                  <span className="bg-slate-100 text-slate-700 text-xs font-bold px-2.5 py-1 rounded-full">
-                    Forever Free
-                  </span>
-                </div>
-                <p className="text-xs text-slate-500 mb-6">
-                  Perfect for trying FLASH and kicking off your placement preparation.
-                </p>
+        </div>
 
-                <div className="mb-6">
-                  <span className="text-4xl font-black text-slate-900">₹0</span>
-                  <span className="text-xs text-slate-500 font-medium"> / forever (free)</span>
-                  <div className="text-[11px] text-emerald-600 font-semibold mt-1">
-                    No payment required • Instant access
-                  </div>
-                </div>
-
-                <div className="border-t border-slate-100 pt-6 space-y-3.5 text-xs text-slate-700">
-                  <div className="flex items-center gap-2.5">
-                    <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span className="font-semibold text-slate-900">100 Subject & Aptitude MCQs</span>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span className="font-semibold text-slate-900">50 Core DSA Coding Problems</span>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Sub-Second Code Compilation (C++, Java, Python, JS)</span>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>1 Full ATS Resume Scan</span>
-                  </div>
-                  <div className="flex items-center gap-2.5 text-slate-400">
-                    <X className="w-4 h-4 text-slate-300 shrink-0" />
-                    <span>Spoken Voice AI Mock Interviews</span>
-                  </div>
-                  <div className="flex items-center gap-2.5 text-slate-400">
-                    <X className="w-4 h-4 text-slate-300 shrink-0" />
-                    <span>Premium Contests Entry</span>
-                  </div>
-                </div>
-              </div>
-
-              <a
-                href={`${STUDENT_PORTAL_URL}/register`}
-                className="mt-8 block w-full text-center bg-slate-100 hover:bg-slate-200 text-slate-900 py-3 rounded-full text-xs font-bold transition-all cursor-pointer"
-              >
-                Start Practicing Free
-              </a>
-            </div>
-
-            {/* Tier 2: Standard Plan (₹99/mo or ₹999/yr) */}
-            <div className="bg-white rounded-3xl p-8 border border-slate-200/90 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-              <div>
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-bold text-slate-900">Standard Plan</h3>
-                  <span className="bg-indigo-50 text-brand-purple text-xs font-bold px-2.5 py-1 rounded-full">
-                    Core Prep
-                  </span>
-                </div>
-                <p className="text-xs text-slate-500 mb-6">
-                  Unlimited practice problems and 300 minutes of spoken AI interview preparation.
-                </p>
-
-                <div className="mb-6">
-                  <span className="text-4xl font-black text-slate-900">
-                    {isYearly ? "₹999" : "₹99"}
-                  </span>
-                  <span className="text-xs text-slate-500 font-medium">
-                    {isYearly ? " / year" : " / month"}
-                  </span>
-                  <div className="text-[11px] text-brand-purple font-semibold mt-1">
-                    {isYearly
-                      ? "₹999/year (inclusive of all taxes) • ~₹83/mo"
-                      : "₹99/month (inclusive of all taxes)"}
-                  </div>
-                </div>
-
-                <div className="border-t border-slate-100 pt-6 space-y-3.5 text-xs text-slate-700">
-                  <div className="flex items-center gap-2.5">
-                    <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span className="font-semibold text-slate-900">Unlimited MCQs across all subjects</span>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span className="font-semibold text-slate-900">Unlimited DSA Coding Problems</span>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span className="font-semibold text-brand-purple">
-                      300 Mins / Month Spoken AI Interviews
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Free Entry to Regular Contests</span>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Topic-wise Accuracy Diagnostics</span>
-                  </div>
-                  <div className="flex items-center gap-2.5 text-slate-400">
-                    <X className="w-4 h-4 text-slate-300 shrink-0" />
-                    <span>Premium Contests Entry</span>
-                  </div>
-                </div>
-              </div>
-
-              <a
-                href={`${STUDENT_PORTAL_URL}/register`}
-                className="mt-8 block w-full text-center bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-full text-xs font-bold transition-all shadow-sm cursor-pointer"
-              >
-                Get Standard Plan
-              </a>
-            </div>
-
-            {/* Tier 3: Premium Plan (₹199/mo or ₹1999/yr) */}
-            <div className="bg-white rounded-3xl p-8 border-2 border-brand-purple shadow-glow-purple relative flex flex-col justify-between transform md:-translate-y-2">
-              <div className="absolute -top-3.5 right-8 bg-brand-amber text-brand-dark font-extrabold text-[10px] px-3.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
-                Recommended
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-bold text-slate-900">Premium Plan</h3>
-                  <span className="bg-violet-100 text-brand-purple text-xs font-bold px-2.5 py-1 rounded-full">
-                    Full Mastery
-                  </span>
-                </div>
-                <p className="text-xs text-slate-500 mb-6">
-                  Complete interview mastery with 1,000 spoken minutes and unlimited ATS rescans.
-                </p>
-
-                <div className="mb-6">
-                  <span className="text-4xl font-black text-brand-purple">
-                    {isYearly ? "₹1,999" : "₹199"}
-                  </span>
-                  <span className="text-xs text-slate-500 font-medium">
-                    {isYearly ? " / year" : " / month"}
-                  </span>
-                  <div className="text-[11px] text-brand-purple font-semibold mt-1">
-                    {isYearly
-                      ? "₹1,999/year (inclusive of all taxes) • ~₹166/mo"
-                      : "₹199/month (inclusive of all taxes)"}
-                  </div>
-                </div>
-
-                <div className="border-t border-slate-100 pt-6 space-y-3.5 text-xs text-slate-700">
-                  <div className="flex items-center gap-2.5">
-                    <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span className="font-bold text-brand-purple">
-                      1,000 Mins / Month Spoken AI Interviews
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span className="font-bold text-slate-900">Unlimited MCQs & Coding Challenges</span>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Unlimited ATS Resume Rescans & Keyword Audits</span>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Free Entry to All Premium Contests</span>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Real-Time Voice Dialogue with Sarah (Principal AI)</span>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Priority Doubt Support</span>
-                  </div>
-                </div>
-              </div>
-
-              <a
-                href={`${STUDENT_PORTAL_URL}/register`}
-                className="mt-8 block w-full text-center bg-brand-amber hover:bg-brand-amberDark text-brand-dark py-3.5 rounded-full text-xs font-extrabold shadow-glow-amber transition-all transform hover:scale-[1.02] cursor-pointer"
-              >
-                Get Premium Plan
-              </a>
-            </div>
-
-          </div>
-
-          {/* Trust Badges Under Pricing */}
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-xs text-slate-500">
-            <span className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" /> Secured by Razorpay
-            </span>
-            <span className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-brand-purple" /> Instant Digital Activation
-            </span>
-            <span className="flex items-center gap-2">
-              <RotateCcw className="w-4 h-4 text-brand-amber" /> 7-Day Refund Policy
-            </span>
-          </div>
-
+        {/* Razorpay Trust Strip */}
+        <div className="mt-12 text-center flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400">
+          <span className="flex items-center gap-1.5">
+            <ShieldCheck className="w-4 h-4 text-emerald-400" /> Razorpay 256-bit Encrypted
+          </span>
+          <span className="text-slate-700">•</span>
+          <span className="flex items-center gap-1.5">
+            <RotateCcw className="w-4 h-4 text-amber-400" /> 7-Day Unconditional Refund
+          </span>
+          <span className="text-slate-700">•</span>
+          <span className="flex items-center gap-1.5">
+            <Zap className="w-4 h-4 text-indigo-400" /> Instant Activation
+          </span>
         </div>
       </section>
 
-      {/* ================= SECTION 5: FAQ ACCORDION ================= */}
-      <section id="faq" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center mb-12">
-          <span className="text-xs font-bold text-brand-purple uppercase tracking-wider bg-violet-100 px-3 py-1 rounded-full">
-            Got Questions?
-          </span>
-          <h2 className="text-3xl font-extrabold text-slate-900 mt-3">
-            Frequently Asked Questions
+      {/* ================= SECTION 7: FAQ ================= */}
+      <section id="faq" className="py-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto border-b border-white/5">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-slate-300 text-xs font-black uppercase tracking-wider mb-4">
+            QUESTIONS & ANSWERS
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-4">
+            Frequently Asked Questions.
           </h2>
+          <p className="text-slate-400 text-base">
+            Everything you need to know about 1v1 battles, ELO calculations, anti-cheat, and tournaments.
+          </p>
         </div>
 
+        {/* FAQ Accordion */}
         <div className="space-y-4">
           
-          {/* FAQ Item 1 */}
-          <div className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden">
-            <button
-              onClick={() => setActiveFaq(activeFaq === 1 ? null : 1)}
-              className="w-full px-6 py-4 text-left flex items-center justify-between font-bold text-slate-900 text-sm hover:text-brand-purple transition-colors cursor-pointer"
+          {[
+            {
+              q: "How does 1v1 Real-time matchmaking work?",
+              a: "When you enter the queue, our matchmaking engine pairs you with a competitor within +/- 100 ELO points. Both participants enter a synchronized Battle Chamber where chess clocks start running, and submissions are benchmarked against live hidden test suites."
+            },
+            {
+              q: "How is ELO calculated in Flash Arena?",
+              a: "Flash Arena utilizes a calibrated FIDE ELO implementation that factors in opponent rating, submission time delta, and test case pass efficiency. Winning against a higher-ranked player yields higher ELO gains."
+            },
+            {
+              q: "What anti-cheat protections are enforced during ranked duels?",
+              a: "Our Battle Chamber enforces active browser tab focus lock, copy-paste telemetry, hardware webcam verification options, and keystroke rhythm analysis to ensure fair competition."
+            },
+            {
+              q: "Can colleges and student clubs host tournaments on Flash Arena?",
+              a: "Yes. Our Contest Studio supports multi-stage tournaments with round 1 aptitude/MCQ screening and round 2 1v1 knockout brackets, along with an auditorium spectator mode for projector displays."
+            },
+            {
+              q: "When will the Flash Career Suite launch?",
+              a: "The Flash Career Suite (AI Spoken Mock Interviews, ATS Resume Scanner, and Placement Readiness Analytics) is currently in private preview. All active Arena users will receive priority day-one access upon launch."
+            },
+            {
+              q: "Can I use Flash Arena completely free?",
+              a: "Yes. The Gladiator Starter tier provides free unrated duels, daily ranked matches, and access to 50 core DSA problems without requiring any credit card."
+            }
+          ].map((item, idx) => (
+            <div
+              key={idx}
+              className="glass-card rounded-2xl border border-white/10 overflow-hidden transition-colors"
             >
-              <span>What is FLASH and how does it help with placement preparation?</span>
-              <ChevronDown
-                className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
-                  activeFaq === 1 ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-            {activeFaq === 1 && (
-              <div className="px-6 pb-4 text-xs text-slate-600 leading-relaxed">
-                FLASH is an all-in-one placement preparation arena that combines 1,000+ subject and aptitude MCQs, a sub-second multi-language coding environment, spoken voice AI mock interviews with Sarah (Principal AI), and an enterprise ATS resume optimizer to prepare you thoroughly for campus and off-campus technical drives.
-              </div>
-            )}
-          </div>
-
-          {/* FAQ Item 2 */}
-          <div className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden">
-            <button
-              onClick={() => setActiveFaq(activeFaq === 2 ? null : 2)}
-              className="w-full px-6 py-4 text-left flex items-center justify-between font-bold text-slate-900 text-sm hover:text-brand-purple transition-colors cursor-pointer"
-            >
-              <span>Can I start for free without entering payment details?</span>
-              <ChevronDown
-                className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
-                  activeFaq === 2 ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-            {activeFaq === 2 && (
-              <div className="px-6 pb-4 text-xs text-slate-600 leading-relaxed">
-                Yes! The Starter Tier is forever free. You get 100 Subject & Aptitude MCQs, 50 Core DSA Coding Problems, code execution in 4 languages, and 1 full ATS resume scan without providing a credit card.
-              </div>
-            )}
-          </div>
-
-          {/* FAQ Item 3 */}
-          <div className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden">
-            <button
-              onClick={() => setActiveFaq(activeFaq === 3 ? null : 3)}
-              className="w-full px-6 py-4 text-left flex items-center justify-between font-bold text-slate-900 text-sm hover:text-brand-purple transition-colors cursor-pointer"
-            >
-              <span>How do the Spoken AI Mock Interviews work?</span>
-              <ChevronDown
-                className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
-                  activeFaq === 3 ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-            {activeFaq === 3 && (
-              <div className="px-6 pb-4 text-xs text-slate-600 leading-relaxed">
-                You engage in a two-way conversational voice session with Sarah (Principal AI). You speak your responses naturally. The AI evaluates technical correctness, STAR methodology, and response clarity, giving you structured post-interview diagnostics to help you improve.
-              </div>
-            )}
-          </div>
-
-          {/* FAQ Item 4 */}
-          <div className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden">
-            <button
-              onClick={() => setActiveFaq(activeFaq === 4 ? null : 4)}
-              className="w-full px-6 py-4 text-left flex items-center justify-between font-bold text-slate-900 text-sm hover:text-brand-purple transition-colors cursor-pointer"
-            >
-              <span>What is the refund policy?</span>
-              <ChevronDown
-                className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
-                  activeFaq === 4 ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-            {activeFaq === 4 && (
-              <div className="px-6 pb-4 text-xs text-slate-600 leading-relaxed">
-                We offer a transparent 7-Day Refund Policy. If you upgrade to a paid plan and feel FLASH does not meet your preparation expectations, simply contact support@flashedu.in within 7 days for a full refund.
-              </div>
-            )}
-          </div>
-
-        </div>
-      </section>
-
-      {/* ================= FINAL CTA BANNER ================= */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 mb-16">
-        <div className="bg-brand-purple rounded-3xl p-8 sm:p-14 text-white text-center relative overflow-hidden shadow-glow-purple">
-          {/* Curved SVG patterns */}
-          <div className="absolute inset-0 opacity-10 pointer-events-none">
-            <svg className="w-full h-full" viewBox="0 0 1000 400" fill="none">
-              <circle cx="200" cy="200" r="180" stroke="white" strokeWidth="40" />
-              <circle cx="800" cy="200" r="220" stroke="white" strokeWidth="60" />
-            </svg>
-          </div>
-
-          <div className="relative z-10 max-w-2xl mx-auto">
-            <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-white/20 text-white uppercase tracking-wider mb-4">
-              Ready to Crack Your Placements?
-            </span>
-            <h2 className="text-3xl sm:text-5xl font-black tracking-tight mb-4 leading-tight">
-              Start Practising Free Today
-            </h2>
-            <p className="text-indigo-100 text-sm sm:text-base mb-8">
-              Join thousands of engineering students who use FLASH to eliminate placement anxiety. Zero setup, 100 MCQs + 50 DSA free.
-            </p>
-
-            <div className="flex flex-col items-center justify-center">
-              <a
-                href={`${STUDENT_PORTAL_URL}/register`}
-                className="inline-flex items-center justify-center gap-3 bg-brand-amber hover:bg-brand-amberDark text-brand-dark px-10 py-4 rounded-full text-base sm:text-lg font-black shadow-glow-amber transition-all transform hover:scale-105 active:scale-95 group cursor-pointer"
-              >
-                <span>Start Practicing Free</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </a>
-              <span className="text-xs text-indigo-200 mt-3 font-medium">
-                Instant redirect to student.flashedu.in • Free forever starter plan
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ================= FOOTER ================= */}
-      <Footer />
-
-      {/* ================= INTERACTIVE MODALS ================= */}
-
-      {/* Modal 1: Live Sample Practice Question */}
-      {questionModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
-            <button
-              onClick={() => setQuestionModalOpen(false)}
-              className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
-              aria-label="Close dialog"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded bg-violet-100 text-brand-purple">
-                Quantitative Aptitude
-              </span>
-              <span className="text-xs text-slate-400">Sample Problem</span>
-            </div>
-
-            <h4 className="text-sm font-bold text-slate-900 mb-4 leading-relaxed">
-              A train 180 meters long is traveling at 54 km/hr. How many seconds will it take to completely pass a platform that is 270 meters long?
-            </h4>
-
-            <div className="space-y-2 mb-6">
-              {[
-                { label: "A) 25 seconds", correct: false, id: "A" },
-                { label: "B) 30 seconds", correct: true, id: "B" },
-                { label: "C) 35 seconds", correct: false, id: "C" },
-                { label: "D) 40 seconds", correct: false, id: "D" },
-              ].map((opt) => {
-                const isSelected = selectedOption === opt.id;
-                let btnStyle = "border-slate-200 text-slate-700 hover:bg-slate-50";
-
-                if (selectedOption) {
-                  if (opt.correct) {
-                    btnStyle = "border-2 border-emerald-500 bg-emerald-50 text-emerald-800 font-bold";
-                  } else if (isSelected) {
-                    btnStyle = "border-2 border-rose-500 bg-rose-50 text-rose-800 font-bold";
-                  } else {
-                    btnStyle = "border-slate-200 text-slate-400 bg-slate-50 opacity-60";
-                  }
-                }
-
-                return (
-                  <button
-                    key={opt.id}
-                    onClick={() => {
-                      setSelectedOption(opt.id);
-                      if (opt.correct) {
-                        showToast("🎉 Correct answer! 30 seconds.");
-                      } else {
-                        showToast("Incorrect. Check the explanation below.");
-                      }
-                    }}
-                    className={`w-full text-left p-3 rounded-xl border text-xs font-medium transition-colors cursor-pointer ${btnStyle}`}
-                  >
-                    {opt.label}
-                  </button>
-                );
-              })}
-            </div>
-
-            {selectedOption && (
-              <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 mb-4">
-                <strong>Correct! (30 seconds)</strong><br />
-                Total distance = Train length + Platform = 180m + 270m = 450 meters.<br />
-                Speed = 54 km/h = 54 × (5/18) = 15 m/s.<br />
-                Time = 450 / 15 = <strong>30 seconds</strong>.
-              </div>
-            )}
-
-            <button
-              onClick={() => {
-                setQuestionModalOpen(false);
-                goToStudentPortal("/register");
-              }}
-              className="w-full bg-brand-purple hover:bg-brand-deep text-white py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
-            >
-              Solve More Free Problems &rarr;
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Modal 2: AI Mock Interview Simulator */}
-      {interviewModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
-            <button
-              onClick={() => {
-                setInterviewModalOpen(false);
-                setInterviewFeedbackOpen(false);
-              }}
-              className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
-              aria-label="Close dialog"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-rose-500 text-white flex items-center justify-center text-sm font-bold">
-                🎙️
-              </div>
-              <span className="font-extrabold text-slate-900 text-lg">
-                Spoken AI Interview Simulator
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 mb-4">
-              Live Conversational Mock with Sarah (Principal AI)
-            </p>
-
-            <div className="p-4 bg-slate-900 text-slate-100 rounded-2xl text-xs mb-4 space-y-3">
-              <div className="flex items-start gap-2">
-                <span className="bg-rose-500 text-[10px] font-bold px-1.5 py-0.5 rounded text-white flex-shrink-0">
-                  Sarah AI
-                </span>
-                <p className="text-slate-200">
-                  "Explain what happens under the hood when a user visits a URL in a browser. Focus on DNS lookup, TCP handshake, and HTTP/HTTPS headers."
-                </p>
-              </div>
-              <div className="p-3 bg-slate-800 rounded-xl border border-slate-700 text-slate-300">
-                <p className="text-[11px] text-slate-400 mb-1">Your response will be evaluated on:</p>
-                <div className="flex items-center gap-2 text-[10px] flex-wrap">
-                  <span className="bg-emerald-900/60 text-emerald-300 px-2 py-0.5 rounded">
-                    Technical Precision
-                  </span>
-                  <span className="bg-indigo-900/60 text-indigo-300 px-2 py-0.5 rounded">
-                    STAR Structure
-                  </span>
-                  <span className="bg-amber-900/60 text-amber-300 px-2 py-0.5 rounded">
-                    Communication Clarity
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <textarea
-                value={interviewInput}
-                onChange={(e) => setInterviewInput(e.target.value)}
-                placeholder="Type your spoken or written response here (e.g., DNS resolver checks cache, initiates 3-way TCP handshake SYN, SYN-ACK, ACK)..."
-                rows={3}
-                className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand-purple"
-              ></textarea>
               <button
-                onClick={() => {
-                  if (!interviewInput.trim()) {
-                    showToast("Please type a brief response first!");
-                    return;
-                  }
-                  setInterviewFeedbackOpen(true);
-                  showToast("⚡ AI feedback generated successfully!");
-                }}
-                className="w-full bg-brand-purple hover:bg-brand-deep text-white py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
+                className="w-full px-6 py-4 text-left flex items-center justify-between gap-4 cursor-pointer"
               >
-                Submit for Instant AI Review
+                <span className="font-bold text-white text-sm sm:text-base">{item.q}</span>
+                <ChevronDown
+                  className={`w-4 h-4 text-amber-400 transition-transform ${
+                    activeFaq === idx ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {activeFaq === idx && (
+                <div className="px-6 pb-5 text-sm text-slate-300 leading-relaxed border-t border-white/5 pt-3">
+                  {item.a}
+                </div>
+              )}
+            </div>
+          ))}
+
+        </div>
+      </section>
+
+      {/* ================= SECTION 8: BOTTOM CTA BANNER ================= */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center relative overflow-hidden">
+        <div className="glass-card rounded-3xl p-10 sm:p-16 border border-white/15 relative overflow-hidden shadow-2xl">
+          
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-300 text-xs font-black uppercase tracking-wider mb-6">
+            STEP INTO THE ARENA
+          </div>
+
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight mb-4 max-w-3xl mx-auto">
+            Ready to Prove Your Skills Under Pressure?
+          </h2>
+
+          <p className="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto mb-8">
+            Join thousands of competitive coders. Climb the Gladiator ladder, earn verified combat credentials, and stand out to top recruiters.
+          </p>
+
+          <a
+            href={ARENA_PORTAL_URL}
+            className="inline-flex items-center gap-3 bg-amber-400 hover:bg-amber-300 text-slate-950 px-10 py-4 rounded-full text-base sm:text-lg font-black shadow-glow-amber transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
+          >
+            <Swords className="w-5 h-5 text-slate-950" />
+            <span>Launch Flash Arena Queue</span>
+            <ArrowRight className="w-5 h-5" />
+          </a>
+
+        </div>
+      </section>
+
+      {/* ================= CAREER SUITE COMING SOON MODAL ================= */}
+      {comingSoonModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="glass-card max-w-md w-full rounded-3xl p-6 sm:p-8 border border-white/20 shadow-2xl text-center relative">
+            <button
+              onClick={() => setComingSoonModalOpen(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white p-1"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 flex items-center justify-center mx-auto mb-4">
+              <Lock className="w-7 h-7 text-amber-400" />
+            </div>
+
+            <span className="px-3 py-1 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-700/60 text-xs font-black uppercase tracking-wider inline-block mb-3">
+              COMING SOON
+            </span>
+
+            <h3 className="text-xl font-bold text-white mb-2">
+              {comingSoonFeature || "Flash Career Suite"}
+            </h3>
+
+            <p className="text-slate-300 text-xs sm:text-sm leading-relaxed mb-6">
+              The Flash Career Suite is currently in final testing with Tier-1 hiring partners. It will launch with AI Spoken Mock Interviews, ATS Resume Optimization, and full Placement Analytics.
+            </p>
+
+            <div className="bg-[#0C0B14] p-3.5 rounded-2xl border border-white/10 text-xs text-amber-300 font-medium mb-6">
+              In the meantime, build your competitive pedigree and rating on Flash Arena!
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <a
+                href={ARENA_PORTAL_URL}
+                className="w-full py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-sm shadow-glow-amber transition-all cursor-pointer block"
+              >
+                Enter Flash Arena
+              </a>
+              <button
+                onClick={() => setComingSoonModalOpen(false)}
+                className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white text-xs font-bold transition-all cursor-pointer"
+              >
+                Close
               </button>
             </div>
-
-            {interviewFeedbackOpen && (
-              <div className="mt-4 p-3.5 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-900">
-                <strong>Score: 8.5/10 • Strong Technical Depth!</strong><br />
-                Tip: Make sure to explicitly mention the 3-way TCP handshake flags (SYN, SYN-ACK, ACK) and TLS certificate validation to score maximum points in Tier-1 technical rounds.
-              </div>
-            )}
           </div>
         </div>
       )}
 
-      {/* Modal 3: Resume ATS Score Simulator */}
-      {resumeModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
-            <button
-              onClick={() => {
-                setResumeModalOpen(false);
-                setResumeScanOpen(false);
-              }}
-              className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
-              aria-label="Close dialog"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-cyan-500 text-white flex items-center justify-center font-bold">
-                📄
-              </div>
-              <span className="font-extrabold text-slate-900 text-lg">
-                Enterprise ATS Resume Scanner
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 mb-4">
-              Audit your resume keywords and formatting against top enterprise hiring filters.
-            </p>
-
-            <div
-              className="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center mb-4 hover:border-brand-purple cursor-pointer transition-colors"
-              onClick={() => {
-                setResumeScanOpen(true);
-                showToast("📄 ATS Resume Score calculated!");
-              }}
-            >
-              <UploadCloud className="w-8 h-8 text-brand-purple mx-auto mb-2" />
-              <p className="text-xs font-bold text-slate-800">
-                Upload PDF Resume or Click to Demo
-              </p>
-              <span className="text-[10px] text-slate-400">
-                Standard single-page technical resume
-              </span>
-            </div>
-
-            {resumeScanOpen && (
-              <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-2">
-                <div className="flex justify-between font-bold text-slate-800">
-                  <span>Overall ATS Match Score</span>
-                  <span className="text-brand-purple font-extrabold text-sm">82 / 100</span>
-                </div>
-                <p className="text-slate-600 text-[11px]">
-                  ✓ Found core keywords: Data Structures, SQL, REST APIs, Git.
-                </p>
-                <p className="text-amber-700 text-[11px]">
-                  💡 Tip: Add quantified metrics (e.g. "reduced query latency by 25%") to your project bullet points.
-                </p>
-              </div>
-            )}
-
-            <button
-              onClick={() => {
-                setResumeModalOpen(false);
-                goToStudentPortal("/register");
-              }}
-              className="w-full mt-3 bg-brand-purple hover:bg-brand-deep text-white py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
-            >
-              Scan Full Resume on Student Portal &rarr;
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Toast Notification Container */}
+      {/* Toast Notification */}
       {toastMsg && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white text-xs px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 animate-in fade-in slide-in-from-bottom-5 duration-200">
-          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></div>
-          <span>{toastMsg}</span>
+        <div className="fixed bottom-6 right-6 z-50 max-w-sm bg-[#171624] text-white px-4 py-3 rounded-2xl border border-amber-400/40 shadow-2xl flex items-center gap-3">
+          <Zap className="w-4 h-4 text-amber-400 flex-shrink-0" />
+          <span className="text-xs font-medium">{toastMsg}</span>
         </div>
       )}
+
+      {/* Footer */}
+      <Footer />
 
     </div>
   );

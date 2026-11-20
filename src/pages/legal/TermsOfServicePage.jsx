@@ -59,7 +59,7 @@ export function TermsOfServicePage() {
         <div className="p-5 rounded-2xl bg-indigo-50/50 border border-indigo-100 flex items-start gap-3">
           <CheckCircle2 className="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
           <p className="text-xs text-indigo-950 leading-relaxed">
-            Welcome to <strong>FLASH Innovations</strong> ("FLASH", "we", "us", or "our"). These Terms of Service ("Terms") govern your access to and use of our career intelligence and placement preparation platform at <strong>flashedu.in</strong> and <strong>student.flashedu.in</strong> ("Platform"). By creating an account or subscribing to our services, you agree to be bound by these Terms.
+            Welcome to <strong>FLASH Innovations</strong> ("FLASH", "we", "us", or "our"). These Terms of Service ("Terms") govern your access to and use of our competitive coding arena and placement platform at <strong>flashedu.in</strong> and <strong>arena.flashedu.in</strong> ("Platform"). By creating an account or subscribing to our services, you agree to be bound by these Terms.
           </p>
         </div>
 

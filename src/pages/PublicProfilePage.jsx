@@ -22,7 +22,7 @@ import {
   Share2,
   TrendingUp
 } from "lucide-react";
-import { B2C_API_URL, STUDENT_PORTAL_URL, ARENA_PORTAL_URL } from "../config/env";
+import { B2C_API_URL, ARENA_PORTAL_URL } from "../config/env";
 
 function LinkedinIcon(props) {
   return (
@@ -160,18 +160,10 @@ export function PublicProfilePage() {
             href={ARENA_PORTAL_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 text-xs font-semibold transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black uppercase tracking-wider transition-colors shadow-sm"
           >
-            <Swords className="w-3.5 h-3.5 text-amber-400" />
-            <span>Flash Arena</span>
-          </a>
-          <a
-            href={`${STUDENT_PORTAL_URL}/login`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-colors shadow-sm"
-          >
-            <span>Student Portal</span>
+            <Swords className="w-3.5 h-3.5" />
+            <span>Enter Flash Arena</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </a>
         </div>

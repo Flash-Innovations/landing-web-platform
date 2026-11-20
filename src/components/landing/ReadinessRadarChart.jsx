@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export function ReadinessRadarChart() {
+export function ReadinessRadarChart({ dark = true }) {
   const [activeMetric, setActiveMetric] = useState(null);
 
   const metrics = [
@@ -17,10 +17,8 @@ export function ReadinessRadarChart() {
   const center = size / 2;
   const maxRadius = 95;
 
-  // Degrees to radians: index to angle (starting at -90deg so 1st label is at top)
   const getAngle = (index) => (index * 2 * Math.PI) / totalAxes - Math.PI / 2;
 
-  // Coordinate generator for percentage (0 - 100)
   const getCoordinates = (index, value) => {
     const angle = getAngle(index);
     const radius = (value / 100) * maxRadius;
@@ -29,7 +27,6 @@ export function ReadinessRadarChart() {
     return { x, y };
   };
 
-  // Polygon points
   const scorePoints = metrics
     .map((m, i) => {
       const { x, y } = getCoordinates(i, m.score);
@@ -44,14 +41,16 @@ export function ReadinessRadarChart() {
     })
     .join(" ");
 
-  // Concentric levels
   const levels = [40, 60, 80, 100];
+  const gridStroke = dark ? "rgba(255, 255, 255, 0.12)" : "#E2E8F0";
+  const labelColor = dark ? "#94A3B8" : "#475569";
+  const activeLabelColor = dark ? "#A5B4FC" : "#5D3BEE";
+  const legendColor = dark ? "text-slate-400" : "text-slate-600";
 
   return (
     <div className="flex flex-col items-center justify-center w-full">
       <div className="relative w-full max-w-[300px] h-[240px] flex items-center justify-center">
         <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full overflow-visible">
-          {/* Concentric grid polygons */}
           {levels.map((lvl) => {
             const levelPoints = metrics
               .map((_, i) => {
@@ -64,14 +63,13 @@ export function ReadinessRadarChart() {
                 key={lvl}
                 points={levelPoints}
                 fill="none"
-                stroke="#E2E8F0"
+                stroke={gridStroke}
                 strokeWidth="1"
                 strokeDasharray={lvl === 100 ? "none" : "2 2"}
               />
             );
           })}
 
-          {/* Spokes from center */}
           {metrics.map((_, i) => {
             const { x, y } = getCoordinates(i, 100);
             return (
@@ -81,31 +79,28 @@ export function ReadinessRadarChart() {
                 y1={center}
                 x2={x}
                 y2={y}
-                stroke="#E2E8F0"
+                stroke={gridStroke}
                 strokeWidth="1"
               />
             );
           })}
 
-          {/* Benchmark Polygon */}
           <polygon
             points={benchmarkPoints}
-            fill="rgba(255, 176, 32, 0.15)"
-            stroke="#FFB020"
+            fill="rgba(245, 158, 11, 0.18)"
+            stroke="#F59E0B"
             strokeWidth="1.5"
             strokeDasharray="3 3"
           />
 
-          {/* Current Score Polygon */}
           <polygon
             points={scorePoints}
-            fill="rgba(93, 59, 238, 0.22)"
-            stroke="#5D3BEE"
+            fill="rgba(99, 102, 241, 0.28)"
+            stroke="#6366F1"
             strokeWidth="2.5"
             className="transition-all duration-300"
           />
 
-          {/* Score Point Markers */}
           {metrics.map((m, i) => {
             const { x, y } = getCoordinates(i, m.score);
             const isHovered = activeMetric === i;
@@ -120,7 +115,7 @@ export function ReadinessRadarChart() {
                   cx={x}
                   cy={y}
                   r={isHovered ? 6 : 4}
-                  fill="#5D3BEE"
+                  fill="#6366F1"
                   stroke="#FFFFFF"
                   strokeWidth="2"
                   className="transition-all duration-150"
@@ -129,7 +124,6 @@ export function ReadinessRadarChart() {
             );
           })}
 
-          {/* Labels */}
           {metrics.map((m, i) => {
             const angle = getAngle(i);
             const labelRadius = maxRadius + 22;
@@ -149,8 +143,8 @@ export function ReadinessRadarChart() {
                 textAnchor={textAnchor}
                 fontSize="10"
                 fontWeight={isHovered ? "bold" : "600"}
-                fill={isHovered ? "#5D3BEE" : "#475569"}
-                fontFamily="Inter, sans-serif"
+                fill={isHovered ? activeLabelColor : labelColor}
+                fontFamily="inherit"
                 className="cursor-pointer transition-colors"
                 onMouseEnter={() => setActiveMetric(i)}
                 onMouseLeave={() => setActiveMetric(null)}
@@ -162,15 +156,14 @@ export function ReadinessRadarChart() {
         </svg>
       </div>
 
-      {/* Legend */}
-      <div className="flex items-center justify-center gap-5 mt-2 text-[11px] font-semibold text-slate-600">
+      <div className={`flex items-center justify-center gap-5 mt-2 text-[11px] font-semibold ${legendColor}`}>
         <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-sm bg-[#5D3BEE]/30 border border-[#5D3BEE]"></span>
-          Your Current Score
+          <span className="w-3 h-3 rounded-sm bg-[#6366F1]/30 border border-[#6366F1]"></span>
+          Candidate Score
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="w-3 h-0.5 border-t-2 border-dashed border-[#FFB020]"></span>
-          Recruitment Benchmark
+          <span className="w-3 h-0.5 border-t-2 border-dashed border-[#F59E0B]"></span>
+          Tier-1 Benchmark
         </span>
       </div>
     </div>
@@ -178,4 +171,3 @@ export function ReadinessRadarChart() {
 }
 
 export default ReadinessRadarChart;
-

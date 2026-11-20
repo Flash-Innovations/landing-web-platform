@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 
-export function DailyTrendChart() {
+export function DailyTrendChart({ dark = true }) {
   const [hoveredIdx, setHoveredIdx] = useState(null);
 
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const accuracy = [72, 78, 85, 82, 90, 88, 92];
   const problems = [25, 30, 45, 35, 50, 40, 60];
 
-  // SVG dimensions
   const width = 500;
   const height = 160;
   const paddingLeft = 32;
@@ -18,42 +17,41 @@ export function DailyTrendChart() {
   const chartW = width - paddingLeft - paddingRight;
   const chartH = height - paddingTop - paddingBottom;
 
-  // Coordinate scales: Y-axis from 20 to 100
   const minY = 20;
   const maxY = 100;
 
   const getX = (index) => paddingLeft + (index / (days.length - 1)) * chartW;
   const getY = (val) => paddingTop + chartH - ((val - minY) / (maxY - minY)) * chartH;
 
-  // Path generators
   const accuracyPoints = accuracy.map((val, i) => `${getX(i)},${getY(val)}`);
   const accuracyLine = `M ${accuracyPoints.join(" L ")}`;
-
-  // Area under accuracy curve
   const accuracyArea = `M ${getX(0)},${paddingTop + chartH} L ${accuracyPoints.join(" L ")} L ${getX(days.length - 1)},${paddingTop + chartH} Z`;
 
-  // Problems dashed line
   const problemsPoints = problems.map((val, i) => `${getX(i)},${getY(val)}`);
   const problemsLine = `M ${problemsPoints.join(" L ")}`;
 
-  // Y-axis grid ticks
   const yTicks = [20, 40, 60, 80, 100];
+
+  const gridColor = dark ? "rgba(255, 255, 255, 0.08)" : "#E2E8F0";
+  const axisTextColor = dark ? "#64748B" : "#94A3B8";
+  const badgeBg = dark ? "bg-indigo-950/80 text-indigo-300 border-indigo-700/50" : "bg-indigo-50 text-[#5D3BEE] border-indigo-100";
+  const labelHeaderColor = dark ? "text-slate-400" : "text-slate-600";
 
   return (
     <div className="relative w-full h-full flex flex-col justify-between select-none">
       <div className="flex items-center justify-between mb-2 px-1">
-        <div className="flex items-center gap-4 text-[10px] font-semibold text-slate-600">
+        <div className={`flex items-center gap-4 text-[10px] font-semibold ${labelHeaderColor}`}>
           <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#5D3BEE] inline-block shadow-xs"></span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#6366F1] inline-block shadow-xs"></span>
             Accuracy %
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-3 h-0.5 border-t-2 border-dashed border-[#FFB020] inline-block"></span>
+            <span className="w-3 h-0.5 border-t-2 border-dashed border-[#F59E0B] inline-block"></span>
             Problems Solved
           </span>
         </div>
         {hoveredIdx !== null && (
-          <span className="text-[11px] font-bold text-[#5D3BEE] bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">
+          <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md border ${badgeBg}`}>
             {days[hoveredIdx]}: {accuracy[hoveredIdx]}% Acc • {problems[hoveredIdx]} Solved
           </span>
         )}
@@ -66,13 +64,12 @@ export function DailyTrendChart() {
           preserveAspectRatio="none"
         >
           <defs>
-            <linearGradient id="purpleGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#5D3BEE" stopOpacity="0.22" />
-              <stop offset="100%" stopColor="#5D3BEE" stopOpacity="0.0" />
+            <linearGradient id="purpleGradientDark" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#6366F1" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#6366F1" stopOpacity="0.0" />
             </linearGradient>
           </defs>
 
-          {/* Grid lines */}
           {yTicks.map((tick) => {
             const y = getY(tick);
             return (
@@ -82,7 +79,7 @@ export function DailyTrendChart() {
                   y1={y}
                   x2={width - paddingRight}
                   y2={y}
-                  stroke="#E2E8F0"
+                  stroke={gridColor}
                   strokeWidth="1"
                   strokeDasharray={tick === 20 ? "none" : "2 2"}
                 />
@@ -91,8 +88,8 @@ export function DailyTrendChart() {
                   y={y + 3}
                   textAnchor="end"
                   fontSize="9"
-                  fill="#94A3B8"
-                  fontFamily="Inter, sans-serif"
+                  fill={axisTextColor}
+                  fontFamily="inherit"
                 >
                   {tick}
                 </text>
@@ -100,95 +97,51 @@ export function DailyTrendChart() {
             );
           })}
 
-          {/* Shaded Area */}
-          <path d={accuracyArea} fill="url(#purpleGradient)" />
+          <path d={accuracyArea} fill="url(#purpleGradientDark)" />
 
-          {/* Accuracy Line */}
-          <path
-            d={accuracyLine}
-            fill="none"
-            stroke="#5D3BEE"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-
-          {/* Problems Solved Line */}
           <path
             d={problemsLine}
             fill="none"
-            stroke="#FFB020"
+            stroke="#F59E0B"
             strokeWidth="2"
             strokeDasharray="4 4"
+          />
+
+          <path
+            d={accuracyLine}
+            fill="none"
+            stroke="#6366F1"
+            strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
 
-          {/* Data Points & X-Axis Labels */}
           {days.map((day, i) => {
             const x = getX(i);
-            const yAcc = getY(accuracy[i]);
-            const yProb = getY(problems[i]);
             const isHovered = hoveredIdx === i;
-
             return (
-              <g key={day} className="cursor-pointer" onMouseEnter={() => setHoveredIdx(i)} onMouseLeave={() => setHoveredIdx(null)}>
-                {/* Vertical hover guide */}
-                {isHovered && (
-                  <line
-                    x1={x}
-                    y1={paddingTop}
-                    x2={x}
-                    y2={paddingTop + chartH}
-                    stroke="#5D3BEE"
-                    strokeWidth="1"
-                    strokeDasharray="2 2"
-                    opacity="0.4"
-                  />
-                )}
-
-                {/* X Axis label */}
+              <g key={day}>
                 <text
                   x={x}
                   y={height - 6}
                   textAnchor="middle"
-                  fontSize="9"
-                  fontWeight={isHovered ? "bold" : "normal"}
-                  fill={isHovered ? "#5D3BEE" : "#64748B"}
-                  fontFamily="Inter, sans-serif"
+                  fontSize="10"
+                  fontWeight={isHovered ? "bold" : "500"}
+                  fill={isHovered ? "#F8FAFC" : axisTextColor}
+                  fontFamily="inherit"
                 >
                   {day}
                 </text>
-
-                {/* Accuracy Marker */}
                 <circle
                   cx={x}
-                  cy={yAcc}
-                  r={isHovered ? 5.5 : 4}
-                  fill="#5D3BEE"
-                  stroke="#FFFFFF"
+                  cy={getY(accuracy[i])}
+                  r={isHovered ? 5 : 3.5}
+                  fill={isHovered ? "#FFFFFF" : "#6366F1"}
+                  stroke="#6366F1"
                   strokeWidth="2"
-                  className="transition-all duration-150"
-                />
-
-                {/* Problem Marker */}
-                <circle
-                  cx={x}
-                  cy={yProb}
-                  r={isHovered ? 4 : 3}
-                  fill="#FFB020"
-                  stroke="#FFFFFF"
-                  strokeWidth="1.5"
-                  className="transition-all duration-150"
-                />
-
-                {/* Transparent hover capture rect */}
-                <rect
-                  x={x - 18}
-                  y={paddingTop}
-                  width="36"
-                  height={chartH}
-                  fill="transparent"
+                  className="transition-all duration-150 cursor-pointer"
+                  onMouseEnter={() => setHoveredIdx(i)}
+                  onMouseLeave={() => setHoveredIdx(null)}
                 />
               </g>
             );
@@ -200,4 +153,3 @@ export function DailyTrendChart() {
 }
 
 export default DailyTrendChart;
-
