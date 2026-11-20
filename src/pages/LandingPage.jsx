@@ -3,7 +3,6 @@ import {
   Swords,
   Trophy,
   Zap,
-  ShieldCheck,
   CheckCircle2,
   Code2,
   Brain,
@@ -18,33 +17,24 @@ import {
   X,
   ChevronDown,
   ChevronRight,
-  LayoutDashboard,
   Timer,
   Bot,
-  TrendingUp,
-  Flag,
   AlertCircle,
   Menu,
-  Clock,
-  PlayCircle,
   Lock,
   Flame,
   Users,
   Target,
   Terminal,
-  ExternalLink,
-  Cpu,
-  Layers,
   ArrowRight
 } from "lucide-react";
 import { Footer } from "../components/common/Footer";
 import { ReadinessRadarChart } from "../components/landing/ReadinessRadarChart";
 import { ARENA_PORTAL_URL } from "../config/env";
 
-export function LandingPage({ defaultScrollTo = null }) {
+export function LandingPage() {
   // Navigation & Interactive states
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [isYearly, setIsYearly] = useState(false);
   const [activeFaq, setActiveFaq] = useState(null);
 
   // Coding Arena preview state
@@ -54,8 +44,6 @@ export function LandingPage({ defaultScrollTo = null }) {
   // Modals & Announcements
   const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
   const [comingSoonFeature, setComingSoonFeature] = useState("");
-  const [questionModalOpen, setQuestionModalOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(null);
 
   // Toast feedback
   const [toastMsg, setToastMsg] = useState(null);
@@ -135,137 +123,120 @@ export function LandingPage({ defaultScrollTo = null }) {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
-  useEffect(() => {
-    if (defaultScrollTo === "pricing" || window.location.hash === "#pricing") {
-      setTimeout(() => {
-        document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
-      }, 150);
-    }
-  }, [defaultScrollTo]);
-
   return (
     <div className="min-h-screen bg-[#09090D] text-slate-100 font-sans antialiased selection:bg-indigo-600 selection:text-white flex flex-col">
 
       {/* ================= TOP NOTICE BAR ================= */}
       <div className="bg-[#0D0C1D] text-white text-xs py-2 px-4 border-b border-indigo-950/80">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
-          <div className="flex items-center gap-2 justify-center">
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-slate-950 tracking-wider">
-              SEASON 1 LIVE
-            </span>
-            <span className="text-slate-300 font-medium">
-              1v1 Speed DSA Battles, Code Golf and Gladiator ELO Ladders are open.
-            </span>
-          </div>
-          <div className="flex items-center gap-3 text-[11px] text-indigo-300">
-            <span className="flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Anti-Cheat Verified
-            </span>
-            <span className="text-slate-700">•</span>
-            <span className="flex items-center gap-1">
-              <Zap className="w-3.5 h-3.5 text-amber-400" /> Sub-50ms WebSocket Sync
-            </span>
-          </div>
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 text-center">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-slate-950 tracking-wider">
+            SEASON 1 LIVE
+          </span>
+          <span className="text-slate-300 font-medium">
+            1v1 Speed DSA Battles, Code Golf and Gladiator ELO Ladders are open.
+          </span>
         </div>
       </div>
 
-      {/* ================= HERO & NAVIGATION WRAPPER ================= */}
-      <header className="hero-contour-bg relative text-white pt-3 pb-24 md:pb-32 overflow-hidden border-b border-white/5">
-        
-        {/* Navbar */}
+      {/* ================= REDESIGNED SLEEK STICKY NAVBAR ================= */}
+      <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#09090D]/85 border-b border-white/10 transition-all">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             
             {/* Brand Logo */}
-            <a href="#hero" className="flex items-center gap-3 group">
-              <div className="bg-white rounded-2xl p-1 shadow-lg group-hover:scale-105 transition-transform flex items-center justify-center">
+            <a href="#hero" className="flex items-center gap-2.5 group">
+              <div className="bg-white/10 border border-white/20 rounded-xl p-1.5 shadow-md group-hover:scale-105 transition-transform flex items-center justify-center">
                 <img
                   src="/branding/flash-logo-compact.png"
-                  alt="FLASH Logo"
-                  className="h-8 w-8 object-contain"
+                  alt="FLASH Mascot"
+                  className="h-6 w-6 object-contain"
                 />
               </div>
-              <div className="flex flex-col">
-                <span className="text-2xl font-black tracking-tight text-white flex items-center gap-0.5">
-                  FLASH<span className="text-amber-400 text-xl leading-none">.</span>
+              <div className="flex items-center gap-2">
+                <span className="text-xl font-black tracking-tight text-white flex items-center">
+                  FLASH<span className="text-amber-400 text-lg leading-none">.</span>
                 </span>
-                <span className="text-[10px] font-bold text-indigo-300 tracking-wider uppercase -mt-1">
-                  Esports & Placement Arena
+                <span className="px-1.5 py-0.5 rounded text-[9px] font-black tracking-widest uppercase bg-amber-400/10 text-amber-400 border border-amber-400/30">
+                  ARENA
                 </span>
               </div>
             </a>
 
             {/* Desktop Navigation Links */}
-            <div className="hidden lg:flex items-center gap-7 text-xs font-semibold text-slate-300">
-              <a href="#hero" className="hover:text-amber-400 transition-colors flex items-center gap-1">
-                <Swords className="w-3.5 h-3.5 text-amber-400" /> 1v1 Arena
-              </a>
-              <a href="#modes" className="hover:text-white transition-colors">
+            <div className="hidden lg:flex items-center gap-6 text-xs font-semibold text-slate-300">
+              <a
+                href="#modes"
+                className="hover:text-white transition-colors py-1.5"
+              >
                 Game Modes
               </a>
-              <a href="#battle-chamber" className="hover:text-white transition-colors">
+              <a
+                href="#battle-chamber"
+                className="hover:text-white transition-colors py-1.5"
+              >
                 Battle Chamber
               </a>
-              <a href="#tiers" className="hover:text-white transition-colors">
+              <a
+                href="#tiers"
+                className="hover:text-white transition-colors py-1.5"
+              >
                 Gladiator Tiers
               </a>
-              <a href="#tournaments" className="hover:text-white transition-colors">
+              <a
+                href="#tournaments"
+                className="hover:text-white transition-colors py-1.5"
+              >
                 Tournaments
               </a>
               <button
                 onClick={() => handleCareerSuiteClick("Flash Career Suite")}
-                className="hover:text-indigo-300 transition-colors flex items-center gap-1.5 text-indigo-300/90 cursor-pointer"
+                className="hover:text-indigo-300 transition-colors flex items-center gap-1.5 text-indigo-300/90 py-1.5 cursor-pointer"
               >
                 <span>Career Suite</span>
                 <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-indigo-950 text-indigo-300 border border-indigo-700/60 uppercase">
                   Coming Soon
                 </span>
               </button>
-              <a href="#pricing" className="hover:text-white transition-colors">
-                Pricing
-              </a>
-              <a href="#faq" className="hover:text-white transition-colors">
+              <a
+                href="#faq"
+                className="hover:text-white transition-colors py-1.5"
+              >
                 FAQ
               </a>
             </div>
 
-            {/* Auth & CTA Buttons */}
+            {/* Auth & Primary CTAs */}
             <div className="flex items-center gap-3">
               <a
                 href={`${ARENA_PORTAL_URL}/login`}
-                className="text-xs sm:text-sm font-semibold text-slate-300 hover:text-white px-3 py-2 transition-colors cursor-pointer"
+                className="text-xs font-semibold text-slate-300 hover:text-white px-3 py-2 transition-colors cursor-pointer"
               >
                 Sign In
               </a>
               <a
                 href={ARENA_PORTAL_URL}
-                className="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-950 px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-black shadow-glow-amber transition-all transform hover:-translate-y-0.5 cursor-pointer"
+                className="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-950 px-4 sm:px-5 py-2 rounded-full text-xs font-black shadow-glow-amber transition-all transform hover:-translate-y-0.5 cursor-pointer"
               >
-                <Swords className="w-4 h-4 text-slate-950" />
+                <Swords className="w-3.5 h-3.5 text-slate-950" />
                 <span>Enter 1v1 Arena</span>
               </a>
+
               {/* Mobile Menu Trigger */}
               <button
                 onClick={() => setMobileNavOpen(!mobileNavOpen)}
                 className="lg:hidden text-white p-2 rounded-lg hover:bg-white/10"
                 aria-label="Toggle menu"
               >
-                <Menu className="w-6 h-6" />
+                <Menu className="w-5 h-5" />
               </button>
             </div>
+
           </div>
 
           {/* Mobile dropdown nav */}
           {mobileNavOpen && (
-            <div className="lg:hidden pt-4 pb-3 border-t border-white/10 mt-2 bg-[#121217]/95 backdrop-blur-md rounded-2xl px-4 shadow-2xl border border-white/10">
+            <div className="lg:hidden pt-4 pb-4 border-t border-white/10 mt-2 bg-[#121217]/95 backdrop-blur-md rounded-2xl px-4 shadow-2xl border border-white/10">
               <div className="flex flex-col space-y-3 text-sm font-medium text-slate-200">
-                <a
-                  href="#hero"
-                  onClick={() => setMobileNavOpen(false)}
-                  className="py-2 hover:text-amber-400 flex items-center gap-2"
-                >
-                  <Swords className="w-4 h-4 text-amber-400" /> 1v1 Arena
-                </a>
                 <a
                   href="#modes"
                   onClick={() => setMobileNavOpen(false)}
@@ -307,13 +278,6 @@ export function LandingPage({ defaultScrollTo = null }) {
                   </span>
                 </button>
                 <a
-                  href="#pricing"
-                  onClick={() => setMobileNavOpen(false)}
-                  className="py-2 hover:text-white"
-                >
-                  Pricing
-                </a>
-                <a
                   href="#faq"
                   onClick={() => setMobileNavOpen(false)}
                   className="py-2 hover:text-white"
@@ -324,15 +288,11 @@ export function LandingPage({ defaultScrollTo = null }) {
             </div>
           )}
         </nav>
+      </header>
 
-        {/* ================= HERO CONTENT SECTION (70% FOCUS) ================= */}
-        <div id="hero" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 md:pt-20 text-center relative z-10">
-          
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-indigo-200 text-xs sm:text-sm font-semibold mb-6 shadow-sm">
-            <span className="flex h-2 w-2 rounded-full bg-amber-400 animate-pulse"></span>
-            <span>FLASH ARENA 2.0 • REAL-TIME SPEED CODING ESPORTS</span>
-          </div>
+      {/* ================= HERO CONTENT SECTION (70% FOCUS) ================= */}
+      <section className="hero-contour-bg relative text-white pt-12 pb-24 md:pb-32 overflow-hidden border-b border-white/5">
+        <div id="hero" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
 
           {/* Hero Main Title */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.1] mb-6">
@@ -367,43 +327,8 @@ export function LandingPage({ defaultScrollTo = null }) {
             </button>
           </div>
 
-          {/* Quick Metrics Bar */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-4 pb-2 text-left">
-            <div className="bg-[#121217]/80 border border-white/10 rounded-2xl p-4 backdrop-blur-sm">
-              <div className="flex items-center gap-2 text-amber-400 text-xs font-bold mb-1 uppercase tracking-wider">
-                <Zap className="w-3.5 h-3.5" /> Latency
-              </div>
-              <div className="text-xl sm:text-2xl font-black text-white">&lt; 50ms</div>
-              <div className="text-[11px] text-slate-400">WebSocket synced match states</div>
-            </div>
-
-            <div className="bg-[#121217]/80 border border-white/10 rounded-2xl p-4 backdrop-blur-sm">
-              <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold mb-1 uppercase tracking-wider">
-                <ShieldCheck className="w-3.5 h-3.5" /> Anti-Cheat
-              </div>
-              <div className="text-xl sm:text-2xl font-black text-white">100% Verified</div>
-              <div className="text-[11px] text-slate-400">Webcam & focus lock telemetry</div>
-            </div>
-
-            <div className="bg-[#121217]/80 border border-white/10 rounded-2xl p-4 backdrop-blur-sm">
-              <div className="flex items-center gap-2 text-indigo-400 text-xs font-bold mb-1 uppercase tracking-wider">
-                <Crown className="w-3.5 h-3.5" /> Gladiator Ranks
-              </div>
-              <div className="text-xl sm:text-2xl font-black text-white">6 ELO Tiers</div>
-              <div className="text-[11px] text-slate-400">Recruit to Grand Champion</div>
-            </div>
-
-            <div className="bg-[#121217]/80 border border-white/10 rounded-2xl p-4 backdrop-blur-sm">
-              <div className="flex items-center gap-2 text-cyan-400 text-xs font-bold mb-1 uppercase tracking-wider">
-                <Users className="w-3.5 h-3.5" /> Vanity Profiles
-              </div>
-              <div className="text-xl sm:text-2xl font-black text-white">flashedu.in/u/*</div>
-              <div className="text-[11px] text-slate-400">Permanent esports resume URL</div>
-            </div>
-          </div>
-
           {/* ================= INTERACTIVE SPLIT 1V1 BATTLE CHAMBER MOCKUP ================= */}
-          <div className="mt-12 max-w-5xl mx-auto rounded-3xl bg-[#0F0E17] border border-white/15 shadow-2xl overflow-hidden text-left relative">
+          <div className="mt-8 max-w-5xl mx-auto rounded-3xl bg-[#0F0E17] border border-white/15 shadow-2xl overflow-hidden text-left relative">
             
             {/* Battle Chamber Header Bar */}
             <div className="bg-[#171624] px-4 sm:px-6 py-3 border-b border-white/10 flex flex-wrap items-center justify-between gap-3">
@@ -565,7 +490,7 @@ export function LandingPage({ defaultScrollTo = null }) {
           </div>
 
         </div>
-      </header>
+      </section>
 
       {/* ================= SECTION 1: ESPORTS BATTLE MODES ================= */}
       <section id="modes" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-b border-white/5">
@@ -840,7 +765,7 @@ export function LandingPage({ defaultScrollTo = null }) {
               <div className="flex items-center justify-between mb-6">
                 <div className="text-xs font-mono text-slate-400 flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                  flashedu.in/u/harshsage
+                  flashedu.in/u/johndoe
                 </div>
                 <span className="px-2.5 py-1 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase tracking-wider">
                   CANONICAL PROFILE
@@ -851,15 +776,15 @@ export function LandingPage({ defaultScrollTo = null }) {
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-400 to-indigo-600 p-0.5 shadow-glow-amber">
                   <div className="w-full h-full rounded-2xl bg-slate-950 flex items-center justify-center text-xl font-black text-white">
-                    HS
+                    JD
                   </div>
                 </div>
                 <div>
                   <h3 className="text-xl font-black text-white flex items-center gap-2">
-                    Harshwardhan
+                    John Doe
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   </h3>
-                  <div className="text-xs text-indigo-300 font-mono">@harshsage • Senior Competitor</div>
+                  <div className="text-xs text-indigo-300 font-mono">@johndoe • Senior Competitor</div>
                 </div>
               </div>
 
@@ -992,7 +917,7 @@ export function LandingPage({ defaultScrollTo = null }) {
               Next-Generation Placement Intelligence.
             </h2>
             <p className="text-slate-400 text-base sm:text-lg leading-relaxed">
-              While you sharpen your speed and climb the Arena ladder, our placement engine is being prepared for prime time. Experience complete career readiness when it launches.
+              While you compete in the Arena, our career readiness algorithms are training to prepare you for Tier-1 placements.
             </p>
           </div>
 
@@ -1099,7 +1024,7 @@ export function LandingPage({ defaultScrollTo = null }) {
               Want priority day-one access to the Flash Career Suite?
             </h4>
             <p className="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4">
-              All active Flash Arena competitors and Gladiator Pro subscribers receive instant priority onboarding the moment the Career Suite opens.
+              All active Flash Arena competitors receive instant priority onboarding the moment the Career Suite opens.
             </p>
             <a
               href={ARENA_PORTAL_URL}
@@ -1113,182 +1038,7 @@ export function LandingPage({ defaultScrollTo = null }) {
         </div>
       </section>
 
-      {/* ================= SECTION 6: PRICING PLANS ================= */}
-      <section id="pricing" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-b border-white/5">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-300 text-xs font-black uppercase tracking-wider mb-4">
-            MEMBERSHIP TIERS
-          </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight mb-4">
-            Transparent Pricing for High Achievers.
-          </h2>
-          <p className="text-slate-400 text-base sm:text-lg mb-8">
-            Start competing free today. Upgrade when you need unlimited ranked battles and official tournament entry.
-          </p>
-
-          {/* Billing Interval Toggle */}
-          <div className="inline-flex items-center p-1 rounded-full bg-[#141320] border border-white/10">
-            <button
-              onClick={() => setIsYearly(false)}
-              className={`px-5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                !isYearly ? "bg-amber-400 text-slate-950 shadow-xs" : "text-slate-400 hover:text-white"
-              }`}
-            >
-              Monthly Billing
-            </button>
-            <button
-              onClick={() => setIsYearly(true)}
-              className={`px-5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                isYearly ? "bg-amber-400 text-slate-950 shadow-xs" : "text-slate-400 hover:text-white"
-              }`}
-            >
-              <span>Annual Billing</span>
-              <span className="px-2 py-0.2 rounded-full bg-indigo-600 text-white text-[9px] font-black uppercase">
-                Save 37%
-              </span>
-            </button>
-          </div>
-        </div>
-
-        {/* Pricing Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto items-stretch">
-          
-          {/* Card 1: Gladiator Starter */}
-          <div className="glass-card rounded-3xl p-8 border border-white/10 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-black uppercase tracking-wider text-slate-400">
-                  FREE TIER
-                </span>
-                <span className="px-3 py-1 rounded-full bg-white/10 text-slate-300 text-xs font-bold">
-                  Free Forever
-                </span>
-              </div>
-              <h3 className="text-2xl font-black text-white mb-2">Gladiator Starter</h3>
-              <p className="text-slate-400 text-sm mb-6">
-                Everything you need to sharpen your algorithms and face real opponents.
-              </p>
-
-              <div className="flex items-baseline gap-1 mb-8">
-                <span className="text-4xl sm:text-5xl font-black text-white">₹0</span>
-                <span className="text-slate-400 text-sm">/ forever</span>
-              </div>
-
-              <div className="space-y-3.5 mb-8 text-sm text-slate-300">
-                <div className="flex items-center gap-3">
-                  <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>Unlimited Unrated 1v1 Practice Duels</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>5 Ranked Competitive Matches per day</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>50 Core DSA Problem Sandbox access</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>Public Vanity Profile (flashedu.in/u/*)</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>Discord Community & Leaderboard</span>
-                </div>
-              </div>
-            </div>
-
-            <a
-              href={ARENA_PORTAL_URL}
-              className="w-full py-3.5 rounded-2xl bg-white/10 hover:bg-white/15 text-white border border-white/15 font-bold text-center text-sm transition-all cursor-pointer block"
-            >
-              Start Free Today
-            </a>
-          </div>
-
-          {/* Card 2: Gladiator Pro (Featured) */}
-          <div className="glass-card rounded-3xl p-8 border-2 border-amber-400/80 relative flex flex-col justify-between shadow-glow-amber">
-            <div className="absolute -top-3.5 right-8">
-              <span className="px-3.5 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-black uppercase tracking-wider shadow-md">
-                MOST POPULAR
-              </span>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-black uppercase tracking-wider text-amber-400">
-                  FULL PASS
-                </span>
-              </div>
-              <h3 className="text-2xl font-black text-white mb-2">Gladiator Pro</h3>
-              <p className="text-slate-400 text-sm mb-6">
-                Unrestricted competitive arena access and priority career suite onboarding.
-              </p>
-
-              <div className="flex items-baseline gap-1 mb-8">
-                <span className="text-4xl sm:text-5xl font-black text-white">
-                  {isYearly ? "₹1,499" : "₹199"}
-                </span>
-                <span className="text-slate-400 text-sm">
-                  {isYearly ? "/ year" : "/ month"}
-                </span>
-              </div>
-
-              <div className="space-y-3.5 mb-8 text-sm text-slate-200">
-                <div className="flex items-center gap-3">
-                  <Check className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                  <span className="font-semibold text-white">Unlimited Ranked 1v1 Battles & Code Golf</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Check className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                  <span>Anti-Cheat Verified Priority Matchmaking</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Check className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                  <span>Campus & Flagship Tournament Entry Passes</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Check className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                  <span className="text-indigo-200 font-semibold">Priority Access to Flash Career Suite</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Check className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                  <span>Verified Gladiator Crown Badge on Profile</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Check className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                  <span>Detailed Match Telemetry & Mistake Analytics</span>
-                </div>
-              </div>
-            </div>
-
-            <a
-              href={`${ARENA_PORTAL_URL}`}
-              className="w-full py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-center text-sm shadow-glow-amber transition-all cursor-pointer block transform hover:scale-[1.02] active:scale-95"
-            >
-              Get Gladiator Pro Pass
-            </a>
-          </div>
-
-        </div>
-
-        {/* Razorpay Trust Strip */}
-        <div className="mt-12 text-center flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400">
-          <span className="flex items-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" /> Razorpay 256-bit Encrypted
-          </span>
-          <span className="text-slate-700">•</span>
-          <span className="flex items-center gap-1.5">
-            <RotateCcw className="w-4 h-4 text-amber-400" /> 7-Day Unconditional Refund
-          </span>
-          <span className="text-slate-700">•</span>
-          <span className="flex items-center gap-1.5">
-            <Zap className="w-4 h-4 text-indigo-400" /> Instant Activation
-          </span>
-        </div>
-      </section>
-
-      {/* ================= SECTION 7: FAQ ================= */}
+      {/* ================= SECTION 6: FAQ ================= */}
       <section id="faq" className="py-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto border-b border-white/5">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-slate-300 text-xs font-black uppercase tracking-wider mb-4">
@@ -1328,7 +1078,7 @@ export function LandingPage({ defaultScrollTo = null }) {
             },
             {
               q: "Can I use Flash Arena completely free?",
-              a: "Yes. The Gladiator Starter tier provides free unrated duels, daily ranked matches, and access to 50 core DSA problems without requiring any credit card."
+              a: "Yes. You can participate in unrated duels, daily ranked matches, and access core DSA problems without requiring any credit card."
             }
           ].map((item, idx) => (
             <div
@@ -1353,34 +1103,6 @@ export function LandingPage({ defaultScrollTo = null }) {
               )}
             </div>
           ))}
-
-        </div>
-      </section>
-
-      {/* ================= SECTION 8: BOTTOM CTA BANNER ================= */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center relative overflow-hidden">
-        <div className="glass-card rounded-3xl p-10 sm:p-16 border border-white/15 relative overflow-hidden shadow-2xl">
-          
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-300 text-xs font-black uppercase tracking-wider mb-6">
-            STEP INTO THE ARENA
-          </div>
-
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight mb-4 max-w-3xl mx-auto">
-            Ready to Prove Your Skills Under Pressure?
-          </h2>
-
-          <p className="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto mb-8">
-            Join thousands of competitive coders. Climb the Gladiator ladder, earn verified combat credentials, and stand out to top recruiters.
-          </p>
-
-          <a
-            href={ARENA_PORTAL_URL}
-            className="inline-flex items-center gap-3 bg-amber-400 hover:bg-amber-300 text-slate-950 px-10 py-4 rounded-full text-base sm:text-lg font-black shadow-glow-amber transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
-          >
-            <Swords className="w-5 h-5 text-slate-950" />
-            <span>Launch Flash Arena Queue</span>
-            <ArrowRight className="w-5 h-5" />
-          </a>
 
         </div>
       </section>
