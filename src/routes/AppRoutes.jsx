@@ -9,6 +9,7 @@ const TermsOfServicePage = lazy(() => import("../pages/legal/TermsOfServicePage"
 const RefundPolicyPage = lazy(() => import("../pages/legal/RefundPolicyPage").then(m => ({ default: m.RefundPolicyPage })));
 const ContactUsPage = lazy(() => import("../pages/legal/ContactUsPage").then(m => ({ default: m.ContactUsPage })));
 const DataSecurityPage = lazy(() => import("../pages/legal/DataSecurityPage").then(m => ({ default: m.DataSecurityPage })));
+const PublicProfilePage = lazy(() => import("../pages/PublicProfilePage").then(m => ({ default: m.PublicProfilePage })));
 
 function RouteLoadingFallback() {
   return (
@@ -33,32 +34,14 @@ function PortalRedirect({ to }) {
   );
 }
 
-function PublicProfileRedirect() {
-  const { username } = useParams();
-  useEffect(() => {
-    if (username) {
-      window.location.replace(`${STUDENT_PORTAL_URL}/u/${encodeURIComponent(username)}`);
-    }
-  }, [username]);
-
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-900 text-slate-300">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-8 h-8 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
-        <p className="text-xs font-mono font-medium text-slate-400">Resolving Flash Candidate Portfolio...</p>
-      </div>
-    </div>
-  );
-}
-
 export function AppRoutes() {
   return (
     <Suspense fallback={<RouteLoadingFallback />}>
       <Routes>
         <Route path="/" element={<LandingPage />} />
         
-        {/* Public Candidate Career Portfolio Vanity Redirect */}
-        <Route path="/u/:username" element={<PublicProfileRedirect />} />
+        {/* Native Public Candidate Career Portfolio & Arena Gladiator Showcase */}
+        <Route path="/u/:username" element={<PublicProfilePage />} />
         
         {/* Student Portal Onboarding & Auth Redirect Routes */}
         <Route path="/login" element={<PortalRedirect to={`${STUDENT_PORTAL_URL}/login`} />} />

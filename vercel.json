@@ -1,11 +1,4 @@
 {
-  "redirects": [
-    {
-      "source": "/u/:username",
-      "destination": "https://student.flashedu.in/u/:username",
-      "permanent": false
-    }
-  ],
   "rewrites": [
     {
       "source": "/(.*)",
